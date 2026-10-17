@@ -1,0 +1,7 @@
+LINE · Generador de Curvas de Nivel (Global Mapper)
+
+1. Abre index.html en el navegador o publica este repositorio con GitHub Pages.
+2. Importa un polígono en KML o KMZ.
+3. Genera curvas de nivel y exporta los resultados.
+
+Las consultas de elevación utilizan Open-Meteo y necesitan conexión a Internet.
