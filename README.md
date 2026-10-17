@@ -16,7 +16,7 @@ Aplicación web estática y autónoma para generar curvas de nivel a partir de u
 
 ## Datos de prueba
 
-La carpeta [`data/`](data/) contiene archivos de demostración: un polígono en KML y KMZ y un DXF de curvas generado previamente. El visor no los carga automáticamente; puedes importarlos en la interfaz.
+La carpeta [`data/`](data/) contiene un polígono de demostración en KML y KMZ. El DXF de curvas de nivel de ejemplo está conservado dentro del archivo `LINE_CURVAS_GLOBAL_MAPPER_LISTO_GITHUB.zip` disponible en la raíz del repositorio. El visor no carga los archivos automáticamente; puedes importarlos en la interfaz.
 
 ## Estructura
 
@@ -24,7 +24,8 @@ La carpeta [`data/`](data/) contiene archivos de demostración: un polígono en 
 index.html                            Aplicación principal
 LINE_Curvas_Nivel_Global_Mapper.html  Copia alternativa de apertura
 LEAME.txt                             Instrucciones originales
-data/                                 Archivos de ejemplo
+data/                                 Predio de ejemplo (KML/KMZ)
+LINE_CURVAS_GLOBAL_MAPPER_LISTO_GITHUB.zip  Paquete completo con DXF de muestra
 ```
 
 ## Publicación con GitHub Pages
