@@ -1,0 +1,2354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LINE · EXP-CURVAS-01 | Generador de Curvas de Nivel (Estilo Global Mapper)</title>
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --bg-hover: #334155;
+      --border-color: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-blue: #3b82f6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, monospace; }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* TOP HEADER */
+    header {
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-exp {
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      color: white;
+      font-weight: 700;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .header-h1 {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .header-sub {
+      color: var(--text-muted);
+      font-size: 12px;
+      font-family: monospace;
+    }
+
+    .badges-strip {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .tag-badge {
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      color: var(--accent-cyan);
+      font-size: 11px;
+      font-family: monospace;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    /* MAIN LAYOUT */
+    .app-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* LEFT SIDEBAR (CONTROLS & DATA) */
+    .sidebar {
+      width: 440px;
+      background-color: #131d2e;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+
+    .section-card {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--accent-cyan);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* TECHNICAL BANNER */
+    .alert-banner {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 11.5px;
+      line-height: 1.45;
+      color: #fde68a;
+      margin-bottom: 12px;
+    }
+
+    .alert-banner strong {
+      color: #fbbf24;
+    }
+
+    .alert-info-banner {
+      background: rgba(6, 182, 212, 0.08);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 11.5px;
+      line-height: 1.45;
+      color: #bae6fd;
+    }
+
+    /* DROP ZONE */
+    .drop-zone {
+      border: 2px dashed #475569;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: rgba(30, 41, 59, 0.5);
+    }
+
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.08);
+    }
+
+    .drop-zone-icon {
+      font-size: 26px;
+      margin-bottom: 6px;
+      color: var(--accent-cyan);
+    }
+
+    .drop-zone-text {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    .drop-zone-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      color: white;
+      box-shadow: 0 2px 6px rgba(6, 182, 212, 0.25);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      filter: brightness(1.1);
+      box-shadow: 0 3px 10px rgba(6, 182, 212, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      border-color: var(--border-color);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--bg-hover);
+      border-color: #64748b;
+    }
+
+    .btn-emerald {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: white;
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-emerald:hover:not(:disabled) {
+      filter: brightness(1.1);
+      box-shadow: 0 3px 10px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-full { width: 100%; }
+
+    /* FORM CONTROLS */
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .form-control {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      color: var(--text-main);
+      padding: 7px 10px;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      user-select: none;
+      margin-top: 8px;
+    }
+
+    .checkbox-row input {
+      accent-color: var(--accent-cyan);
+      width: 15px;
+      height: 15px;
+    }
+
+    /* STATS GRID */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .stat-box {
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 9px 11px;
+    }
+
+    .stat-label {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      font-family: monospace;
+      margin-top: 2px;
+    }
+
+    .stat-val.cyan { color: var(--accent-cyan); }
+    .stat-val.emerald { color: var(--accent-emerald); }
+    .stat-val.amber { color: var(--accent-amber); }
+
+    /* PROGRESS BAR */
+    .progress-wrap {
+      margin-top: 10px;
+      display: none;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: #334155;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #06b6d4, #10b981);
+      transition: width 0.2s ease;
+    }
+
+    .progress-text {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: monospace;
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    /* RIGHT CANVAS AREA */
+    .canvas-container {
+      flex: 1;
+      position: relative;
+      background: #090e17;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+
+    canvas:active {
+      cursor: grabbing;
+    }
+
+    /* OVERLAY FLOATING CONTROLS IN CANVAS */
+    .canvas-toolbar {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 5px;
+      display: flex;
+      gap: 5px;
+      z-index: 10;
+    }
+
+    .btn-icon {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-main);
+      width: 30px;
+      height: 30px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .btn-icon:hover {
+      background: var(--bg-hover);
+      border-color: #64748b;
+    }
+
+    .coords-overlay {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 11.5px;
+      font-family: monospace;
+      color: var(--text-muted);
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .coords-overlay strong {
+      color: var(--accent-cyan);
+    }
+
+    .legend-box {
+      position: absolute;
+      bottom: 14px;
+      right: 14px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 11px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend-line {
+      width: 20px;
+      height: 3px;
+      border-radius: 1px;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      position: absolute;
+      text-align: center;
+      max-width: 360px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .empty-icon {
+      font-size: 42px;
+      color: #334155;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand-title">
+      <span class="badge-exp">EXP-CURVAS-01</span>
+      <div>
+        <div class="header-h1">LINE · Generador de Curvas de Nivel (Estilo Global Mapper)</div>
+        <div class="header-sub">Isolíneas a 0.50 m · Recorte Estricto · Suavizado Chaikin · Exportación DXF 3D</div>
+      </div>
+    </div>
+    <div class="badges-strip">
+      <span class="tag-badge">EQUIDISTANCIA: 0.50 M</span>
+      <span class="tag-badge">RASTER: COPERNICUS DEM (GLO-90 OFICIAL)</span>
+      <span class="tag-badge">DATUM: WGS84 / EGM96</span>
+    </div>
+  </header>
+
+  <!-- BODY -->
+  <div class="app-body">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <!-- ESTADO DE FUENTES RASTER -->
+      <div class="section-card">
+        <div class="section-title">
+          <span>📡</span> Estado de Fuentes Altimétricas
+        </div>
+        <div class="alert-banner">
+          <strong>ASTER GDEM v3 (NASA/METI):</strong> Requiere autenticación con token Bearer de NASA Earthdata Cloud (LP DAAC). Acceso no autenticado restringido por la API de NASA.
+        </div>
+        <div class="alert-info-banner">
+          <strong>Fuente Activa Verificada:</strong> Copernicus DEM 2021 GLO-90 (resolución 90 m oficial de Open-Meteo). Datum vertical: EGM96. Cotas reales sin token.<br>
+          <em>Aviso de Atribución:</em> La API pública de Open-Meteo opera con el modelo global GLO-90 (90 m). No se atribuye falsamente resolución GLO-30.<br>
+          <em>Nota técnica:</em> La equidistancia de 0.50 m es el espaciado vertical de isolíneas interpoladas sobre el raster, análogo al método de triangulación/malla de Global Mapper.
+        </div>
+      </div>
+
+      <!-- CARGA DE ARCHIVO -->
+      <div class="section-card">
+        <div class="section-title">
+          <span>📁</span> 1. Polígono de Entrada (KMZ / KML)
+        </div>
+
+        <div class="drop-zone" id="dropZone">
+          <div class="drop-zone-icon">📥</div>
+          <div class="drop-zone-text">Arrastra aquí un archivo .KMZ o .KML</div>
+          <div class="drop-zone-sub">o haz clic para explorar en el equipo</div>
+          <input type="file" id="fileInput" accept=".kmz,.kml" style="display:none;">
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 10px;">
+          <button class="btn btn-secondary btn-full" id="btnLoadDemo" type="button">
+            📍 Cargar Predio de Prueba (Lomas)
+          </button>
+        </div>
+
+        <div id="fileLoadedInfo" style="display:none; margin-top: 10px; font-size: 11.5px; color: var(--accent-emerald);">
+          ✓ Archivo cargado: <strong id="lblFileName">--</strong>
+        </div>
+      </div>
+
+      <!-- PARÁMETROS DE GENERACIÓN -->
+      <div class="section-card">
+        <div class="section-title">
+          <span>⚙️</span> 2. Parámetros de Topografía
+        </div>
+
+        <div class="form-group">
+          <label>Equidistancia de Curvas de Nivel (m)</label>
+          <select id="selEquidistance" class="form-control">
+            <option value="0.50" selected>0.50 m (Estándar EXP-CURVAS-01)</option>
+            <option value="0.25">0.25 m (Detalle de Alta Densidad)</option>
+            <option value="1.00">1.00 m (Topografía General)</option>
+            <option value="2.00">2.00 m (Pendiente Fuerte)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Intervalo de Curvas Maestras (m)</label>
+          <select id="selMajorInterval" class="form-control">
+            <option value="2.50" selected>Cada 2.50 m (5 curvas ordinarias)</option>
+            <option value="5.00">Cada 5.00 m (10 curvas ordinarias)</option>
+            <option value="1.00">Cada 1.00 m</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Suavizado Geométrico (Chaikin)</label>
+          <select id="selSmoothing" class="form-control">
+            <option value="2" selected>2 iteraciones (Estilo fluido Global Mapper)</option>
+            <option value="1">1 iteración (Ligero)</option>
+            <option value="3">3 iteraciones (Ultra fluido)</option>
+            <option value="0">Sin suavizado (Segmentos lineales puros)</option>
+          </select>
+        </div>
+
+        <label class="checkbox-row">
+          <input type="checkbox" id="chkClipPolygon" checked>
+          <span>Recortar estrictamente al polígono perimetral del KMZ</span>
+        </label>
+
+        <label class="checkbox-row">
+          <input type="checkbox" id="chkDxfLabels" checked>
+          <span>Incluir textos de cota en Curvas Maestras al exportar DXF</span>
+        </label>
+
+        <div class="form-group" style="margin-top: 10px;">
+          <label>Modo Altitud Google Earth (KML / KMZ)</label>
+          <select id="selKmlAltitudeMode" class="form-control">
+            <option value="clampToGround" selected>clampToGround (Drapeado al terreno · Coincidencia exacta con satélite)</option>
+            <option value="absolute">absolute (Cotas 3D ortométricas EGM96 sobre el nivel del mar)</option>
+          </select>
+        </div>
+
+        <label class="checkbox-row">
+          <input type="checkbox" id="chkIncludePerimeterKML" checked>
+          <span>Incluir polígono perimetral de referencia en KMZ / KML</span>
+        </label>
+
+        <div style="margin-top: 14px;">
+          <button class="btn btn-primary btn-full" id="btnGenerate" type="button" disabled>
+            🚀 Generar Curvas de Nivel (0.50 m)
+          </button>
+        </div>
+
+        <div class="progress-wrap" id="progressWrap">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-text" id="progressText">Iniciando...</div>
+        </div>
+      </div>
+
+      <!-- MÉTRICAS Y RESULTADOS -->
+      <div class="section-card" id="resultsSection" style="display:none;">
+        <div class="section-title">
+          <span>📊</span> 3. Resultados y Métricas del Terreno
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Área Predio</div>
+            <div class="stat-val cyan" id="statArea">--</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Perímetro</div>
+            <div class="stat-val" id="statPerimeter">--</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Rango Cotas (Z)</div>
+            <div class="stat-val amber" id="statZRange">--</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Desnivel Total (ΔZ)</div>
+            <div class="stat-val" id="statDeltaZ">--</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Total Curvas</div>
+            <div class="stat-val emerald" id="statTotalCurves">--</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Maestras / Ordinarias</div>
+            <div class="stat-val" id="statBreakdown">--</div>
+          </div>
+        </div>
+
+        <!-- ACCIONES DE DESCARGA -->
+        <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
+          <button class="btn btn-emerald btn-full" id="btnDownloadDXF" type="button">
+            📐 Descargar DXF 3D (AutoCAD / Civil 3D)
+          </button>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-secondary btn-full" id="btnDownloadKMZ" type="button" title="Archivo comprimido KMZ con polígono y curvas para Google Earth Pro">
+              🌍 KMZ (Google Earth)
+            </button>
+            <button class="btn btn-secondary btn-full" id="btnDownloadKML" type="button" title="Archivo KML estándar para Google Earth / GIS">
+              📄 KML
+            </button>
+            <button class="btn btn-secondary btn-full" id="btnDownloadGeoJSON" type="button" title="Formato estándar GeoJSON">
+              🗺️ GeoJSON
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CANVAS AREA -->
+    <div class="canvas-container" id="canvasContainer">
+      <canvas id="topoCanvas"></canvas>
+
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">🏔️</div>
+        <div style="font-size: 14px; font-weight: 600; color: #cbd5e1; margin-bottom: 4px;">Sin curvas generadas</div>
+        <div style="font-size: 12px;">Carga un archivo KMZ o pulsa "Cargar Predio de Prueba" para visualizar las curvas de nivel.</div>
+      </div>
+
+      <!-- FLOATING TOOLBAR -->
+      <div class="canvas-toolbar">
+        <button class="btn-icon" id="btnZoomIn" title="Acercar (+)">＋</button>
+        <button class="btn-icon" id="btnZoomOut" title="Alejar (-)">－</button>
+        <button class="btn-icon" id="btnFit" title="Ajustar vista">⛶</button>
+      </div>
+
+      <!-- COORDS OVERLAY -->
+      <div class="coords-overlay" id="coordsOverlay">
+        Cursor: <span id="lblCoords">--</span> | <span id="lblElevationInfo">Cota: --</span>
+      </div>
+
+      <!-- LEGEND -->
+      <div class="legend-box" id="legendBox" style="display:none;">
+        <div class="legend-item">
+          <div class="legend-line" style="background:#06b6d4; height: 3px;"></div>
+          <span>Polígono KMZ</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-line" style="background:#ef4444; height: 2.5px;"></div>
+          <span>Curvas Maestras (2.50m)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-line" style="background:#94a3b8; height: 1.2px;"></div>
+          <span>Curvas Ordinarias (0.50m)</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+
+      // --- ESTADO GLOBAL ---
+      const state = {
+        kmlText: null,
+        fileName: null,
+        geoPoints: [],
+        utmPoints: [],
+        utmZone: 14,
+        utmHemisphere: 'N',
+        cachedPolyHash: null,
+        baseElevations: null,
+        gridBaseX: [],
+        gridBaseY: [],
+        gridBaseZ: [],
+        fineGridX: [],
+        fineGridY: [],
+        fineGridZ: [],
+        curves: [],
+        labels: [],
+        zMin: 0,
+        zMax: 0,
+        view: {
+          zoom: 1,
+          panX: 0,
+          panY: 0,
+          isDragging: false,
+          startX: 0,
+          startY: 0
+        },
+        hoveredCurve: null
+      };
+
+      // --- ELEMENTOS DOM ---
+      const dropZone = document.getElementById('dropZone');
+      const fileInput = document.getElementById('fileInput');
+      const btnLoadDemo = document.getElementById('btnLoadDemo');
+      const btnGenerate = document.getElementById('btnGenerate');
+      const btnDownloadDXF = document.getElementById('btnDownloadDXF');
+      const btnDownloadKMZ = document.getElementById('btnDownloadKMZ');
+      const btnDownloadKML = document.getElementById('btnDownloadKML');
+      const btnDownloadGeoJSON = document.getElementById('btnDownloadGeoJSON');
+      const fileLoadedInfo = document.getElementById('fileLoadedInfo');
+      const lblFileName = document.getElementById('lblFileName');
+      const progressWrap = document.getElementById('progressWrap');
+      const progressFill = document.getElementById('progressFill');
+      const progressText = document.getElementById('progressText');
+      const resultsSection = document.getElementById('resultsSection');
+      const emptyState = document.getElementById('emptyState');
+      const legendBox = document.getElementById('legendBox');
+      const coordsOverlay = document.getElementById('coordsOverlay');
+      const lblCoords = document.getElementById('lblCoords');
+      const lblElevationInfo = document.getElementById('lblElevationInfo');
+      const canvas = document.getElementById('topoCanvas');
+      const ctx = canvas.getContext('2d');
+      const container = document.getElementById('canvasContainer');
+
+      // --- REDIMENSIONADO DE CANVAS ---
+      function resizeCanvas() {
+        canvas.width = container.clientWidth * window.devicePixelRatio;
+        canvas.height = container.clientHeight * window.devicePixelRatio;
+        renderCanvas();
+      }
+      window.addEventListener('resize', resizeCanvas);
+      setTimeout(resizeCanvas, 50);
+
+      // --- PROYECCIÓN UTM WGS84 ---
+      function latLonToUTM(lat, lon) {
+        const a = 6378137.0;
+        const f = 1 / 298.257223563;
+        const e2 = 2 * f - f * f;
+        const e_prime2 = e2 / (1 - e2);
+        const k0 = 0.9996;
+        const zone = Math.floor((lon + 180) / 6) + 1;
+        const lon0 = (zone - 1) * 6 - 180 + 3;
+        const latRad = lat * Math.PI / 180;
+        const lonRad = lon * Math.PI / 180;
+        const lon0Rad = lon0 * Math.PI / 180;
+        const N = a / Math.sqrt(1 - e2 * Math.sin(latRad) * Math.sin(latRad));
+        const T = Math.tan(latRad) * Math.tan(latRad);
+        const C = e_prime2 * Math.cos(latRad) * Math.cos(latRad);
+        const A = Math.cos(latRad) * (lonRad - lon0Rad);
+        const M = a * (
+          (1 - e2 / 4 - 3 * e2 * e2 / 64 - 5 * e2 * e2 * e2 / 256) * latRad
+          - (3 * e2 / 8 + 3 * e2 * e2 / 32 + 45 * e2 * e2 * e2 / 1024) * Math.sin(2 * latRad)
+          + (15 * e2 * e2 / 256 + 45 * e2 * e2 * e2 / 1024) * Math.sin(4 * latRad)
+          - (35 * e2 * e2 * e2 / 3072) * Math.sin(6 * latRad)
+        );
+        const x = k0 * N * (A + (1 - T + C) * Math.pow(A, 3) / 6 + (5 - 18 * T + T * T + 72 * C - 58 * e_prime2) * Math.pow(A, 5) / 120) + 500000.0;
+        let y = k0 * (M + N * Math.tan(latRad) * (A * A / 2 + (5 - T + 9 * C + 4 * C * C) * Math.pow(A, 4) / 24 + (61 - 58 * T + T * T + 600 * C - 330 * e_prime2) * Math.pow(A, 6) / 720));
+        if (lat < 0) y += 10000000.0;
+        return { zone, hemisphere: lat >= 0 ? 'N' : 'S', x, y };
+      }
+
+      function utmToLatLon(x, y, zone, hemisphere = 'N') {
+        const a = 6378137.0;
+        const f = 1 / 298.257223563;
+        const e2 = 2 * f - f * f;
+        const e_prime2 = e2 / (1 - e2);
+        const e1 = (1 - Math.sqrt(1 - e2)) / (1 + Math.sqrt(1 - e2));
+        const k0 = 0.9996;
+        const x0 = x - 500000.0;
+        let y0 = y;
+        if (hemisphere === 'S') y0 -= 10000000.0;
+        const M = y0 / k0;
+        const mu = M / (a * (1 - e2 / 4 - 3 * e2 * e2 / 64 - 5 * e2 * e2 * e2 / 256));
+        const phi1Rad = mu + (3 * e1 / 2 - 27 * Math.pow(e1, 3) / 32) * Math.sin(2 * mu)
+          + (21 * e1 * e1 / 16 - 55 * Math.pow(e1, 4) / 32) * Math.sin(4 * mu)
+          + (151 * Math.pow(e1, 3) / 96) * Math.sin(6 * mu);
+        const N1 = a / Math.sqrt(1 - e2 * Math.sin(phi1Rad) * Math.sin(phi1Rad));
+        const T1 = Math.tan(phi1Rad) * Math.tan(phi1Rad);
+        const C1 = e_prime2 * Math.cos(phi1Rad) * Math.cos(phi1Rad);
+        const R1 = a * (1 - e2) / Math.pow(1 - e2 * Math.sin(phi1Rad) * Math.sin(phi1Rad), 1.5);
+        const D = x0 / (N1 * k0);
+        const latRad = phi1Rad - (N1 * Math.tan(phi1Rad) / R1) * (
+          D * D / 2 - (5 + 3 * T1 + 10 * C1 - 4 * C1 * C1 - 9 * e_prime2) * Math.pow(D, 4) / 24
+          + (61 + 90 * T1 + 298 * C1 + 45 * T1 * T1 - 252 * e_prime2 - 3 * C1 * C1) * Math.pow(D, 6) / 720
+        );
+        const lon0 = (zone - 1) * 6 - 180 + 3;
+        const lonRad = (lon0 * Math.PI / 180) + (
+          D - (1 + 2 * T1 + C1) * Math.pow(D, 3) / 6
+          + (5 - 2 * C1 + 28 * T1 - 3 * C1 * C1 + 8 * e_prime2 + 24 * T1 * T1) * Math.pow(D, 5) / 120
+        ) / Math.cos(phi1Rad);
+        return { lat: latRad * 180 / Math.PI, lon: lonRad * 180 / Math.PI };
+      }
+
+      // --- PARSER ZIP NATIVO PARA KMZ ---
+      async function extractKmlFromZip(arrayBuffer) {
+        const u8 = new Uint8Array(arrayBuffer);
+        const view = new DataView(arrayBuffer);
+        let eocdOffset = -1;
+        for (let i = u8.length - 22; i >= 0; i--) {
+          if (u8[i] === 0x50 && u8[i+1] === 0x4b && u8[i+2] === 0x05 && u8[i+3] === 0x06) {
+            eocdOffset = i;
+            break;
+          }
+        }
+        if (eocdOffset === -1) throw new Error('Estructura ZIP no encontrada en KMZ');
+        const cdOffset = view.getUint32(eocdOffset + 16, true);
+        const cdEntries = view.getUint16(eocdOffset + 10, true);
+        let ptr = cdOffset;
+        for (let e = 0; e < cdEntries; e++) {
+          const compMethod = view.getUint16(ptr + 10, true);
+          const compSize = view.getUint32(ptr + 20, true);
+          const fnLen = view.getUint16(ptr + 28, true);
+          const extraLen = view.getUint16(ptr + 30, true);
+          const commentLen = view.getUint16(ptr + 32, true);
+          const localHeaderOffset = view.getUint32(ptr + 42, true);
+          const fname = new TextDecoder().decode(u8.subarray(ptr + 46, ptr + 46 + fnLen));
+          
+          if (fname.toLowerCase().endsWith('.kml')) {
+            const locFnLen = view.getUint16(localHeaderOffset + 26, true);
+            const locExtraLen = view.getUint16(localHeaderOffset + 28, true);
+            const dataOffset = localHeaderOffset + 30 + locFnLen + locExtraLen;
+            const compData = u8.subarray(dataOffset, dataOffset + compSize);
+            if (compMethod === 8) {
+              const ds = new DecompressionStream('deflate-raw');
+              const writer = ds.writable.getWriter();
+              writer.write(compData);
+              writer.close();
+              return await new Response(ds.readable).text();
+            } else if (compMethod === 0) {
+              return new TextDecoder().decode(compData);
+            }
+          }
+          ptr += 46 + fnLen + extraLen + commentLen;
+        }
+        throw new Error('No se encontró archivo .kml dentro del archivo KMZ');
+      }
+
+      // --- PARSEAR POLÍGONO DE KML ---
+      function parsePolygonFromKML(kmlText) {
+        const coordRegex = /<coordinates>([\s\S]*?)<\/coordinates>/gi;
+        const match = coordRegex.exec(kmlText);
+        if (!match) throw new Error('No se encontraron coordenadas en el KML');
+        const rawCoords = match[1].trim().split(/\s+/);
+        const points = [];
+        for (const item of rawCoords) {
+          if (!item.includes(',')) continue;
+          const parts = item.split(',').map(s => parseFloat(s.trim()));
+          if (Number.isFinite(parts[0]) && Number.isFinite(parts[1])) {
+            points.push({ lon: parts[0], lat: parts[1], alt: parts[2] || 0 });
+          }
+        }
+        if (points.length < 3) throw new Error('El polígono tiene menos de 3 vértices');
+
+        // Cerrar si es necesario
+        const p0 = points[0], pLast = points[points.length - 1];
+        if (Math.abs(p0.lat - pLast.lat) > 1e-7 || Math.abs(p0.lon - pLast.lon) > 1e-7) {
+          points.push({ lon: p0.lon, lat: p0.lat, alt: p0.alt });
+        }
+        return points;
+      }
+
+      // --- CARGAR ARCHIVO ---
+      async function handleFile(file) {
+        try {
+          updateProgress(true, 10, 'Leyendo archivo...');
+          let kmlText = '';
+          if (file.name.toLowerCase().endsWith('.kmz')) {
+            const buf = await file.arrayBuffer();
+            kmlText = await extractKmlFromZip(buf);
+          } else {
+            kmlText = await file.text();
+          }
+
+          const geoPoints = parsePolygonFromKML(kmlText);
+          state.kmlText = kmlText;
+          state.fileName = file.name;
+          state.geoPoints = geoPoints;
+
+          // Proyectar a UTM
+          state.utmPoints = geoPoints.map(p => {
+            const utm = latLonToUTM(p.lat, p.lon);
+            return { ...utm, lat: p.lat, lon: p.lon, z: p.alt };
+          });
+          state.utmZone = state.utmPoints[0].zone;
+          state.utmHemisphere = state.utmPoints[0].hemisphere;
+
+          lblFileName.textContent = file.name;
+          fileLoadedInfo.style.display = 'block';
+          btnGenerate.disabled = false;
+          updateProgress(false);
+
+          fitView();
+          renderCanvas();
+        } catch (err) {
+          alert('Error procesando archivo: ' + err.message);
+          updateProgress(false);
+        }
+      }
+
+      // --- EVENTOS DRAG & DROP ---
+      dropZone.onclick = () => fileInput.click();
+      fileInput.onchange = (e) => {
+        if (e.target.files.length) handleFile(e.target.files[0]);
+      };
+      dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
+      dropZone.ondragleave = () => dropZone.classList.remove('dragover');
+      dropZone.ondrop = (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+      };
+
+      // --- CARGAR DEMO (LOMAS) ---
+      btnLoadDemo.onclick = async () => {
+        const demoKml = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Predio Demo Global Mapper</name>
+    <Placemark>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              -98.234000,19.051500,0
+              -98.230500,19.052000,0
+              -98.231000,19.054500,0
+              -98.234500,19.054000,0
+              -98.234000,19.051500,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>`;
+        const file = new File([demoKml], "predio_demo_global_mapper.kml", { type: "text/xml" });
+        await handleFile(file);
+      };
+
+      function updateProgress(show, pct = 0, text = '') {
+        progressWrap.style.display = show ? 'block' : 'none';
+        if (show) {
+          progressFill.style.width = pct + '%';
+          progressText.textContent = text;
+        }
+      }
+
+      // --- CACHÉ PERSISTENTE DE ELEVACIONES (OFFLINE-FIRST) ---
+      const ELEVATION_CACHE_KEY = 'line_elevation_cache_glo90_v1';
+      const elevationCache = new Map();
+
+      // Cargar caché persistente desde localStorage
+      try {
+        const savedCache = localStorage.getItem(ELEVATION_CACHE_KEY);
+        if (savedCache) {
+          const parsed = JSON.parse(savedCache);
+          Object.entries(parsed).forEach(([k, v]) => elevationCache.set(k, v));
+        }
+      } catch (e) {
+        console.warn('[Caché Elevación] Error cargando caché:', e);
+      }
+
+      function saveElevationCache() {
+        try {
+          const obj = {};
+          let count = 0;
+          for (const [k, v] of elevationCache.entries()) {
+            obj[k] = v;
+            if (++count > 2500) break; // Límite de seguridad
+          }
+          localStorage.setItem(ELEVATION_CACHE_KEY, JSON.stringify(obj));
+        } catch (e) {}
+      }
+
+      // --- CONSULTA CONTROLADA DE ELEVACIONES (RATE LIMITING + RETRY-AFTER) ---
+      async function fetchElevations(lats, lons) {
+        const results = new Array(lats.length);
+        const missing = [];
+
+        // 1. Resolver puntos disponibles en caché
+        for (let i = 0; i < lats.length; i++) {
+          const key = `${lats[i].toFixed(5)},${lons[i].toFixed(5)}`;
+          if (elevationCache.has(key)) {
+            results[i] = elevationCache.get(key);
+          } else {
+            missing.push({ idx: i, lat: lats[i], lon: lons[i], key });
+          }
+        }
+
+        if (missing.length === 0) {
+          updateProgress(true, 70, 'Cotas obtenidas 100% de caché local (0 peticiones a red)...');
+          return results;
+        }
+
+        // 2. Descargar puntos faltantes en lotes de hasta 80 coordenadas
+        const batchSize = 80;
+        const totalBatches = Math.ceil(missing.length / batchSize);
+
+        for (let b = 0; b < totalBatches; b++) {
+          const batch = missing.slice(b * batchSize, (b + 1) * batchSize);
+          const latStr = batch.map(p => p.lat.toFixed(6)).join(',');
+          const lonStr = batch.map(p => p.lon.toFixed(6)).join(',');
+          const url = `https://api.open-meteo.com/v1/elevation?latitude=${encodeURIComponent(latStr)}&longitude=${encodeURIComponent(lonStr)}`;
+
+          let ok = false;
+          let attempts = 0;
+
+          while (!ok && attempts < 2) {
+            attempts++;
+            try {
+              updateProgress(true, Math.round(30 + (b / totalBatches) * 40), `Descargando cotas reales (lote ${b + 1}/${totalBatches})...`);
+              const resp = await fetch(url);
+
+              if (resp.status === 429) {
+                const retryHeader = resp.headers.get('Retry-After');
+                let waitSec = retryHeader ? parseInt(retryHeader, 10) : 6;
+                if (!Number.isFinite(waitSec) || waitSec <= 0) waitSec = 6;
+
+                updateProgress(true, 35, `Límite de Open-Meteo alcanzado (HTTP 429). Esperando ${waitSec}s (Retry-After)...`);
+                await new Promise(r => setTimeout(r, waitSec * 1000));
+                continue; // Reintento controlado único
+              }
+
+              if (!resp.ok) {
+                throw new Error(`HTTP ${resp.status} de Open-Meteo`);
+              }
+
+              const json = await resp.json();
+              if (!Array.isArray(json.elevation)) {
+                throw new Error('Respuesta de elevación inválida de Open-Meteo');
+              }
+
+              json.elevation.forEach((val, i) => {
+                const item = batch[i];
+                const elev = Number.isFinite(+val) ? +val : null;
+                results[item.idx] = elev;
+                if (elev !== null) {
+                  elevationCache.set(item.key, elev);
+                }
+              });
+
+              ok = true;
+            } catch (err) {
+              if (attempts >= 2) {
+                throw new Error(`BLOQUEADO: ${err.message}. El proveedor Open-Meteo ha limitado temporalmente las peticiones por IP.`);
+              }
+              await new Promise(r => setTimeout(r, 1500));
+            }
+          }
+
+          // Pacing preventivo: mínimo 1200ms entre llamadas sucesivas para evitar 429
+          if (b + 1 < totalBatches) {
+            await new Promise(r => setTimeout(r, 1200));
+          }
+        }
+
+        saveElevationCache();
+        return results;
+      }
+
+      // --- GEOMETRÍA: POINT IN POLYGON ---
+      function isPointInPoly(pt, poly) {
+        let inside = false;
+        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+          const pi = poly[i], pj = poly[j];
+          const hit = ((pi.y > pt.y) !== (pj.y > pt.y)) &&
+            (pt.x < (pj.x - pi.x) * (pt.y - pi.y) / ((pj.y - pi.y) || 1e-15) + pi.x);
+          if (hit) inside = !inside;
+        }
+        return inside;
+      }
+
+      function lineIntersection(p1, p2, p3, p4) {
+        const d = (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x);
+        if (Math.abs(d) < 1e-12) return null;
+        const t = ((p1.x - p3.x) * (p3.y - p4.y) - (p1.y - p3.y) * (p3.x - p4.x)) / d;
+        const u = -((p1.x - p2.x) * (p1.y - p3.y) - (p1.y - p2.y) * (p1.x - p3.x)) / d;
+        if (t >= -1e-6 && t <= 1 + 1e-6 && u >= -1e-6 && u <= 1 + 1e-6) {
+          return {
+            t: Math.max(0, Math.min(1, t)),
+            u: Math.max(0, Math.min(1, u)),
+            x: p1.x + t * (p2.x - p1.x),
+            y: p1.y + t * (p2.y - p1.y)
+          };
+        }
+        return null;
+      }
+
+      // --- LONGITUD DE POLILÍNEA ---
+      function polylineLength(pts) {
+        if (!pts || pts.length < 2) return 0;
+        let len = 0;
+        for (let i = 0; i < pts.length - 1; i++) {
+          len += Math.hypot(pts[i + 1].x - pts[i].x, pts[i + 1].y - pts[i].y);
+        }
+        return len;
+      }
+
+      // --- UNIR POLILÍNEAS CERCANAS DE LA MISMA COTA ---
+      function joinNearbyPolylines(polylines, maxGap = 0.60) {
+        if (!polylines || polylines.length < 2) return polylines || [];
+        let list = polylines.map(p => [...p]);
+        let merged = true;
+
+        while (merged) {
+          merged = false;
+          outerLoop:
+          for (let i = 0; i < list.length; i++) {
+            for (let j = i + 1; j < list.length; j++) {
+              const pA = list[i], pB = list[j];
+              if (!pA.length || !pB.length) continue;
+              const tailA = pA[pA.length - 1], headA = pA[0];
+              const headB = pB[0], tailB = pB[pB.length - 1];
+
+              // Fin de A con Inicio de B
+              if (Math.hypot(tailA.x - headB.x, tailA.y - headB.y) <= maxGap) {
+                const add = Math.hypot(tailA.x - headB.x, tailA.y - headB.y) < 1e-4 ? pB.slice(1) : pB;
+                pA.push(...add);
+                list.splice(j, 1);
+                merged = true;
+                break outerLoop;
+              }
+              // Fin de A con Fin de B
+              if (Math.hypot(tailA.x - tailB.x, tailA.y - tailB.y) <= maxGap) {
+                pB.reverse();
+                const add = Math.hypot(tailA.x - pB[0].x, tailA.y - pB[0].y) < 1e-4 ? pB.slice(1) : pB;
+                pA.push(...add);
+                list.splice(j, 1);
+                merged = true;
+                break outerLoop;
+              }
+              // Inicio de A con Inicio de B
+              if (Math.hypot(headA.x - headB.x, headA.y - headB.y) <= maxGap) {
+                pA.reverse();
+                const add = Math.hypot(pA[pA.length - 1].x - headB.x, pA[pA.length - 1].y - headB.y) < 1e-4 ? pB.slice(1) : pB;
+                pA.push(...add);
+                list.splice(j, 1);
+                merged = true;
+                break outerLoop;
+              }
+              // Inicio de A con Fin de B
+              if (Math.hypot(headA.x - tailB.x, headA.y - tailB.y) <= maxGap) {
+                const add = Math.hypot(tailB.x - headA.x, tailB.y - headA.y) < 1e-4 ? pA.slice(1) : pA;
+                pB.push(...add);
+                list[i] = pB;
+                list.splice(j, 1);
+                merged = true;
+                break outerLoop;
+              }
+            }
+          }
+        }
+        return list;
+      }
+
+      // --- MARCHING SQUARES CON DECISOR ASINTÓTICO DE SILLAS ---
+      function marchingSquaresIsolines(gridX, gridY, gridZ, cota) {
+        const nx = gridX.length, ny = gridY.length;
+        const segments = [];
+
+        for (let j = 0; j < ny - 1; j++) {
+          for (let i = 0; i < nx - 1; i++) {
+            const x0 = gridX[i], x1 = gridX[i + 1];
+            const y0 = gridY[j], y1 = gridY[j + 1];
+            const zBL = gridZ[j][i], zBR = gridZ[j][i + 1], zTR = gridZ[j + 1][i + 1], zTL = gridZ[j + 1][i];
+
+            let mask = 0;
+            if (zBL >= cota) mask |= 1;
+            if (zBR >= cota) mask |= 2;
+            if (zTR >= cota) mask |= 4;
+            if (zTL >= cota) mask |= 8;
+
+            if (mask === 0 || mask === 15) continue;
+
+            const interpBottom = () => ({ x: x0 + ((cota - zBL) / ((zBR - zBL) || 1e-9)) * (x1 - x0), y: y0 });
+            const interpRight = () => ({ x: x1, y: y0 + ((cota - zBR) / ((zTR - zBR) || 1e-9)) * (y1 - y0) });
+            const interpTop = () => ({ x: x0 + ((cota - zTL) / ((zTR - zTL) || 1e-9)) * (x1 - x0), y: y1 });
+            const interpLeft = () => ({ x: x0, y: y0 + ((cota - zBL) / ((zTL - zBL) || 1e-9)) * (y1 - y0) });
+
+            const centerZ = (zBL + zBR + zTR + zTL) / 4;
+
+            switch (mask) {
+              case 1: segments.push([interpLeft(), interpBottom()]); break;
+              case 2: segments.push([interpBottom(), interpRight()]); break;
+              case 3: segments.push([interpLeft(), interpRight()]); break;
+              case 4: segments.push([interpRight(), interpTop()]); break;
+              case 5:
+                if (centerZ >= cota) {
+                  segments.push([interpLeft(), interpTop()]);
+                  segments.push([interpBottom(), interpRight()]);
+                } else {
+                  segments.push([interpLeft(), interpBottom()]);
+                  segments.push([interpRight(), interpTop()]);
+                }
+                break;
+              case 6: segments.push([interpBottom(), interpTop()]); break;
+              case 7: segments.push([interpLeft(), interpTop()]); break;
+              case 8: segments.push([interpTop(), interpLeft()]); break;
+              case 9: segments.push([interpBottom(), interpTop()]); break;
+              case 10:
+                if (centerZ >= cota) {
+                  segments.push([interpBottom(), interpLeft()]);
+                  segments.push([interpRight(), interpTop()]);
+                } else {
+                  segments.push([interpLeft(), interpTop()]);
+                  segments.push([interpBottom(), interpRight()]);
+                }
+                break;
+              case 11: segments.push([interpRight(), interpTop()]); break;
+              case 12: segments.push([interpRight(), interpLeft()]); break;
+              case 13: segments.push([interpBottom(), interpRight()]); break;
+              case 14: segments.push([interpLeft(), interpBottom()]); break;
+            }
+          }
+        }
+        return stitchSegments(segments);
+      }
+
+      function stitchSegments(segments, eps = 0.15) {
+        if (!segments.length) return [];
+        const remaining = segments.map(s => [{ ...s[0] }, { ...s[1] }]);
+        const polylines = [];
+
+        while (remaining.length > 0) {
+          const current = remaining.pop();
+          let extended = true;
+          while (extended) {
+            extended = false;
+            const head = current[0];
+            const tail = current[current.length - 1];
+
+            for (let i = 0; i < remaining.length; i++) {
+              const s = remaining[i];
+              if (Math.hypot(tail.x - s[0].x, tail.y - s[0].y) < eps) {
+                current.push(s[1]); remaining.splice(i, 1); extended = true; break;
+              } else if (Math.hypot(tail.x - s[1].x, tail.y - s[1].y) < eps) {
+                current.push(s[0]); remaining.splice(i, 1); extended = true; break;
+              } else if (Math.hypot(head.x - s[0].x, head.y - s[0].y) < eps) {
+                current.unshift(s[1]); remaining.splice(i, 1); extended = true; break;
+              } else if (Math.hypot(head.x - s[1].x, head.y - s[1].y) < eps) {
+                current.unshift(s[0]); remaining.splice(i, 1); extended = true; break;
+              }
+            }
+          }
+          polylines.push(current);
+        }
+
+        // Segunda pasada de ensamble para cerrar gaps por tolerancias numéricas
+        return joinNearbyPolylines(polylines, 0.50);
+      }
+
+      // --- RECORTE AL POLÍGONO KMZ SIN GAPS ARTIFICIALES ---
+      function clipPolyline(polyline, poly) {
+        const result = [];
+        let currentSegment = [];
+
+        for (let s = 0; s < polyline.length - 1; s++) {
+          const p1 = polyline[s], p2 = polyline[s + 1];
+          const hits = [];
+          for (let i = 0; i < poly.length - 1; i++) {
+            const hit = lineIntersection(p1, p2, poly[i], poly[i + 1]);
+            if (hit && hit.t > 1e-4 && hit.t < 1 - 1e-4) hits.push(hit);
+          }
+          hits.sort((a, b) => a.t - b.t);
+
+          const subPts = [p1, ...hits.map(h => ({ x: h.x, y: h.y })), p2];
+          for (let k = 0; k < subPts.length - 1; k++) {
+            const a = subPts[k], b = subPts[k + 1];
+            if (Math.hypot(b.x - a.x, b.y - a.y) < 0.005) continue; // Descartar sub-pasos de < 5mm
+
+            const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+            if (isPointInPoly(mid, poly)) {
+              if (currentSegment.length === 0) currentSegment.push(a);
+              else {
+                const last = currentSegment[currentSegment.length - 1];
+                if (Math.hypot(last.x - a.x, last.y - a.y) > 0.001) currentSegment.push(a);
+              }
+              currentSegment.push(b);
+            } else {
+              if (currentSegment.length >= 2) result.push(currentSegment);
+              currentSegment = [];
+            }
+          }
+        }
+        if (currentSegment.length >= 2) result.push(currentSegment);
+
+        // Unir piezas contiguas que hayan quedado separadas por el recorte al borde
+        const joined = joinNearbyPolylines(result, 0.80);
+
+        // Descartar micro-segmentos residuales pero preservando anillos cerrados de copa (>= 1.00m)
+        return joined.filter(p => {
+          const isClosed = Math.hypot(p[0].x - p[p.length - 1].x, p[0].y - p[p.length - 1].y) < 0.35;
+          return polylineLength(p) >= (isClosed ? 1.00 : 1.80);
+        });
+      }
+
+      // --- SUAVIZADO DE CHAIKIN CON ANCLAJE ESTRICTO DE EXTREMOS Y PROTECCIÓN DE COPAS ---
+      function chaikinSmooth(pts, iterations = 2) {
+        if (!pts || pts.length < 3 || iterations <= 0) return pts;
+        let current = pts.map(p => ({ ...p }));
+        const isClosed = Math.hypot(current[0].x - current[current.length - 1].x, current[0].y - current[current.length - 1].y) < 0.35;
+        if (isClosed) {
+          current[current.length - 1] = { ...current[0] };
+        }
+
+        for (let it = 0; it < iterations; it++) {
+          const next = [];
+          if (isClosed) {
+            for (let i = 0; i < current.length - 1; i++) {
+              const p0 = current[i], p1 = current[i + 1];
+              next.push({ x: 0.75 * p0.x + 0.25 * p1.x, y: 0.75 * p0.y + 0.25 * p1.y });
+              next.push({ x: 0.25 * p0.x + 0.75 * p1.x, y: 0.25 * p0.y + 0.75 * p1.y });
+            }
+            next.push({ ...next[0] });
+          } else {
+            // Anclaje estricto de extremos: el punto inicial y final en el borde nunca se mueven
+            next.push({ ...current[0] });
+            for (let i = 0; i < current.length - 1; i++) {
+              const p0 = current[i], p1 = current[i + 1];
+              next.push({ x: 0.75 * p0.x + 0.25 * p1.x, y: 0.75 * p0.y + 0.25 * p1.y });
+              next.push({ x: 0.25 * p0.x + 0.75 * p1.x, y: 0.25 * p0.y + 0.75 * p1.y });
+            }
+            next.push({ ...current[current.length - 1] });
+          }
+          current = next;
+        }
+        return current;
+      }
+
+      // --- DENSIFICACIÓN UNIFORME A PASO MÉTRICO (DESVINCULACIÓN DEL GRID) ---
+      function densifyPolyline(points, step = 2.0) {
+        if (!points || points.length < 2) return points;
+        const res = [{ ...points[0] }];
+        for (let i = 0; i < points.length - 1; i++) {
+          const p0 = points[i], p1 = points[i + 1];
+          const dist = Math.hypot(p1.x - p0.x, p1.y - p0.y);
+          if (dist > step * 1.25) {
+            const numSegments = Math.ceil(dist / step);
+            for (let k = 1; k < numSegments; k++) {
+              const t = k / numSegments;
+              res.push({
+                x: p0.x + t * (p1.x - p0.x),
+                y: p0.y + t * (p1.y - p0.y)
+              });
+            }
+          }
+          res.push({ ...p1 });
+        }
+        return res;
+      }
+
+      // --- FILTRADO DE RUIDO ORTOGONAL Y SUAVIZADO ORGÁNICO CON PROTECCIÓN DE COPAS ---
+      function smoothContourOrganic(poly, smoothingIter = 2) {
+        if (!poly || poly.length < 2) return poly;
+        const isClosed = Math.hypot(poly[0].x - poly[poly.length - 1].x, poly[0].y - poly[poly.length - 1].y) < 0.35;
+        const totalLen = polylineLength(poly);
+        const minLen = isClosed ? 1.00 : 1.80;
+        if (totalLen < minLen) return poly;
+        if (smoothingIter <= 0) return poly;
+
+        // A. Curvas cerradas de copa / cima / depresión (anillos interiores)
+        if (isClosed) {
+          if (totalLen < 35.0) {
+            // Copa pequeña: NO simplificar agresivamente para evitar colapso de anillo
+            // Densificar con paso fino adaptado al perímetro (0.6m - 1.2m)
+            const densStep = Math.max(0.6, Math.min(1.2, totalLen / 12));
+            const dens = densifyPolyline(poly, densStep);
+            return chaikinSmooth(dens, Math.min(2, smoothingIter));
+          } else {
+            // Anillo cerrado amplio: simplificación suave
+            let pts = simplifyPolyline(poly, 0.20);
+            if (pts.length < 4) pts = poly;
+            pts = densifyPolyline(pts, 2.0);
+            return chaikinSmooth(pts, smoothingIter);
+          }
+        }
+
+        // B. Curvas abiertas (cortadas al perímetro o transversales)
+        // 1. Filtrar micro-escalones ortogonales de Marching Squares (< 0.35m)
+        let pts = simplifyPolyline(poly, 0.30);
+        if (pts.length < 2) pts = poly;
+
+        // 2. Densificación métrica uniforme (~2.0m)
+        pts = densifyPolyline(pts, 2.0);
+
+        // 3. Suavizado Chaikin con anclaje estricto de extremos en el perímetro
+        return chaikinSmooth(pts, smoothingIter);
+      }
+
+      // --- SIMPLIFICACIÓN MÉTRICA DOUGLAS-PEUCKER (REDUCCIÓN DE VÉRTICES COLINEALES EN DXF) ---
+      function simplifyPolyline(points, tolerance = 0.04) {
+        if (!points || points.length <= 2) return points;
+        const sqTol = tolerance * tolerance;
+
+        function getSqSegDist(p, p1, p2) {
+          let x = p1.x, y = p1.y, dx = p2.x - x, dy = p2.y - y;
+          if (dx !== 0 || dy !== 0) {
+            const t = ((p.x - x) * dx + (p.y - y) * dy) / (dx * dx + dy * dy);
+            if (t > 1) { x = p2.x; y = p2.y; }
+            else if (t > 0) { x += dx * t; y += dy * t; }
+          }
+          dx = p.x - x; dy = p.y - y;
+          return dx * dx + dy * dy;
+        }
+
+        function dpStep(pts, first, last, result) {
+          let maxSq = sqTol, idx = -1;
+          for (let i = first + 1; i < last; i++) {
+            const sq = getSqSegDist(pts[i], pts[first], pts[last]);
+            if (sq > maxSq) { maxSq = sq; idx = i; }
+          }
+          if (idx !== -1) {
+            if (idx - first > 1) dpStep(pts, first, idx, result);
+            result.push(pts[idx]);
+            if (last - idx > 1) dpStep(pts, idx, last, result);
+          }
+        }
+
+        const res = [points[0]];
+        dpStep(points, 0, points.length - 1, res);
+        res.push(points[points.length - 1]);
+        return res;
+      }
+
+      // --- CÁLCULO CONTROLADO Y ESPACIADO DE ETIQUETAS DE COTA ---
+      function computeContourLabels(curves, options = {}) {
+        const minCurveLength = options.minCurveLength || 28.0; // Solo en curvas con longitud >= 28 m
+        const minLabelSpacing = options.minLabelSpacing || 45.0; // Mínimo 45 m entre etiquetas
+        const minSameCotaSpacing = options.minSameCotaSpacing || 65.0; // Mínimo 65 m entre etiquetas de la misma cota
+        const labels = [];
+
+        // Reducción agresiva: solo etiquetar Curvas Maestras con suficiente recorrido
+        const candidateCurves = (curves || []).filter(c => {
+          if (!c.isMajor) return false;
+          return polylineLength(c.points) >= minCurveLength;
+        });
+
+        candidateCurves.forEach(c => {
+          const pts = c.points;
+          const totalLen = polylineLength(pts);
+          if (totalLen < minCurveLength) return;
+
+          // Distancias acumuladas
+          const cumDist = [0];
+          for (let i = 0; i < pts.length - 1; i++) {
+            cumDist.push(cumDist[i] + Math.hypot(pts[i + 1].x - pts[i].x, pts[i + 1].y - pts[i].y));
+          }
+
+          // 1 etiqueta si len < 140 m, 2 etiquetas si len >= 140 m
+          const numLabels = totalLen > 140 ? 2 : 1;
+          const targetFractions = (numLabels === 1) ? [0.50] : [0.35, 0.70];
+
+          targetFractions.forEach(frac => {
+            const targetD = totalLen * frac;
+            let bestIdx = 1;
+            let minDiff = Infinity;
+            for (let i = 1; i < pts.length - 1; i++) {
+              const diff = Math.abs(cumDist[i] - targetD);
+              if (diff < minDiff) {
+                minDiff = diff;
+                bestIdx = i;
+              }
+            }
+
+            // Buscar en ventana de +/- 3 vértices el punto con menor quiebre angular
+            let bestSmoothIdx = bestIdx;
+            let minBend = Infinity;
+            const searchRadius = Math.min(4, Math.floor(pts.length / 5));
+            const startI = Math.max(2, bestIdx - searchRadius);
+            const endI = Math.min(pts.length - 3, bestIdx + searchRadius);
+
+            for (let i = startI; i <= endI; i++) {
+              const pPrev = pts[i - 2];
+              const pCurr = pts[i];
+              const pNext = pts[i + 2];
+              const a1 = Math.atan2(pCurr.y - pPrev.y, pCurr.x - pPrev.x);
+              const a2 = Math.atan2(pNext.y - pCurr.y, pNext.x - pCurr.x);
+              let bend = Math.abs(a2 - a1);
+              if (bend > Math.PI) bend = 2 * Math.PI - bend;
+
+              if (bend < minBend) {
+                minBend = bend;
+                bestSmoothIdx = i;
+              }
+            }
+
+            // Si el quiebre es brusco (> 40° = 0.70 rad), omitir la etiqueta
+            if (minBend > 0.70) return;
+
+            const pt = pts[bestSmoothIdx];
+            const pNext = pts[Math.min(pts.length - 1, bestSmoothIdx + 2)];
+            const pPrev = pts[Math.max(0, bestSmoothIdx - 2)];
+            let angleDeg = Math.atan2(pNext.y - pPrev.y, pNext.x - pPrev.x) * 180 / Math.PI;
+
+            // Orientación legible (no invertida)
+            if (angleDeg > 90) angleDeg -= 180;
+            else if (angleDeg < -90) angleDeg += 180;
+
+            // Verificar separación espacial contra etiquetas ya colocadas
+            let tooClose = false;
+            for (const placed of labels) {
+              const dist = Math.hypot(pt.x - placed.x, pt.y - placed.y);
+              if (dist < minLabelSpacing) {
+                tooClose = true;
+                break;
+              }
+              if (placed.elevation === c.elevation && dist < minSameCotaSpacing) {
+                tooClose = true;
+                break;
+              }
+            }
+
+            if (!tooClose) {
+              labels.push({
+                x: pt.x,
+                y: pt.y,
+                z: c.elevation,
+                elevation: c.elevation,
+                text: c.elevation.toFixed(2),
+                angleDeg: +angleDeg.toFixed(1),
+                isMajor: true
+              });
+            }
+          });
+        });
+
+        return labels;
+      }
+
+      // --- GENERACIÓN DE CURVAS ---
+      btnGenerate.onclick = async () => {
+        if (!state.utmPoints.length) return;
+        btnGenerate.disabled = true;
+
+        try {
+          updateProgress(true, 15, 'Muestreando cuadrícula del predio...');
+
+          // Bounding Box
+          let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+          state.utmPoints.forEach(p => {
+            if (p.x < minX) minX = p.x;
+            if (p.x > maxX) maxX = p.x;
+            if (p.y < minY) minY = p.y;
+            if (p.y > maxY) maxY = p.y;
+          });
+
+          const margin = 25; // 25m buffer
+          const expMinX = minX - margin, expMaxX = maxX + margin;
+          const expMinY = minY - margin, expMaxY = maxY + margin;
+          const spanX = expMaxX - expMinX;
+          const spanY = expMaxY - expMinY;
+
+          // Hash de huella del polígono para evitar re-consultar a red si solo cambian opciones de curvas
+          const polyHash = state.utmPoints.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join('|');
+          const canReuseGrid = (state.cachedPolyHash === polyHash && state.gridBaseZ && state.gridBaseZ.length > 0 && state.fineGridZ && state.fineGridZ.length > 0);
+
+          if (!canReuseGrid) {
+            // Paso base respetando la resolución real de Copernicus GLO-90 (~90 m)
+            // Limitando el número de puntos base a una cuadrícula eficiente (máx ~80 puntos = 1 solo lote)
+            const baseStepM = Math.max(45, Math.ceil(Math.max(spanX, spanY) / 9));
+            const nx = Math.ceil(spanX / baseStepM) + 1;
+            const ny = Math.ceil(spanY / baseStepM) + 1;
+
+            const lats = [], lons = [];
+            state.gridBaseX = [];
+            state.gridBaseY = [];
+            for (let i = 0; i < nx; i++) state.gridBaseX.push(expMinX + i * (spanX / (nx - 1)));
+            for (let j = 0; j < ny; j++) state.gridBaseY.push(expMinY + j * (spanY / (ny - 1)));
+
+            for (let j = 0; j < ny; j++) {
+              for (let i = 0; i < nx; i++) {
+                const geo = utmToLatLon(state.gridBaseX[i], state.gridBaseY[j], state.utmZone, state.utmHemisphere);
+                lats.push(geo.lat);
+                lons.push(geo.lon);
+              }
+            }
+
+            // Consultar cotas
+            updateProgress(true, 30, 'Consultando modelo altimétrico Copernicus DEM GLO-90...');
+            const rawElevations = await fetchElevations(lats, lons);
+
+            state.gridBaseZ = [];
+            let zMin = Infinity, zMax = -Infinity;
+            for (let j = 0; j < ny; j++) {
+              const row = [];
+              for (let i = 0; i < nx; i++) {
+                const z = rawElevations[j * nx + i];
+                row.push(z);
+                if (z < zMin) zMin = z;
+                if (z > zMax) zMax = z;
+              }
+              state.gridBaseZ.push(row);
+            }
+            state.zMin = zMin;
+            state.zMax = zMax;
+
+            // Densificar con interpolación bicúbica continua C1 (Estilo Global Mapper DEM Spline)
+            updateProgress(true, 75, 'Interpolando superficie continua (Bicúbica Catmull-Rom C1)...');
+            const fineStepM = 2.5; // Malla densa de 2.50m para evitar facetado de celda
+            const fineNx = Math.ceil(spanX / fineStepM) + 1;
+            const fineNy = Math.ceil(spanY / fineStepM) + 1;
+
+            state.fineGridX = [];
+            state.fineGridY = [];
+            for (let i = 0; i < fineNx; i++) state.fineGridX.push(expMinX + i * (spanX / (fineNx - 1)));
+            for (let j = 0; j < fineNy; j++) state.fineGridY.push(expMinY + j * (spanY / (fineNy - 1)));
+
+            function catmullRom(p0, p1, p2, p3, t) {
+              const v0 = (p2 - p0) * 0.5, v1 = (p3 - p1) * 0.5;
+              const t2 = t * t, t3 = t * t2;
+              return (2 * p1 - 2 * p2 + v0 + v1) * t3 + (-3 * p1 + 3 * p2 - 2 * v0 - v1) * t2 + v0 * t + p1;
+            }
+
+            function getBaseZ(j, i) {
+              const cj = Math.max(0, Math.min(ny - 1, j));
+              const ci = Math.max(0, Math.min(nx - 1, i));
+              return state.gridBaseZ[cj][ci];
+            }
+
+            state.fineGridZ = [];
+            for (let j = 0; j < fineNy; j++) {
+              const y = state.fineGridY[j];
+              const vY = (y - expMinY) / spanY * (ny - 1);
+              const j0 = Math.floor(vY);
+              const ty = vY - j0;
+              const row = [];
+              for (let i = 0; i < fineNx; i++) {
+                const x = state.fineGridX[i];
+                const vX = (x - expMinX) / spanX * (nx - 1);
+                const i0 = Math.floor(vX);
+                const tx = vX - i0;
+
+                const colZ = [];
+                for (let c = -1; c <= 2; c++) {
+                  colZ.push(catmullRom(
+                    getBaseZ(j0 + c, i0 - 1),
+                    getBaseZ(j0 + c, i0),
+                    getBaseZ(j0 + c, i0 + 1),
+                    getBaseZ(j0 + c, i0 + 2),
+                    Math.max(0, Math.min(1, tx))
+                  ));
+                }
+                const z = catmullRom(colZ[0], colZ[1], colZ[2], colZ[3], Math.max(0, Math.min(1, ty)));
+                row.push(z);
+              }
+              state.fineGridZ.push(row);
+            }
+
+            state.cachedPolyHash = polyHash;
+          } else {
+            updateProgress(true, 75, 'Reutilizando malla altimétrica del predio (0 peticiones a red)...');
+          }
+
+          // Recalcular rango Z exacto sobre la superficie continua fina (garantizando cimas reales)
+          if (state.fineGridZ && state.fineGridZ.length > 0) {
+            let fzMin = Infinity, fzMax = -Infinity;
+            for (let j = 0; j < state.fineGridZ.length; j++) {
+              const row = state.fineGridZ[j];
+              for (let i = 0; i < row.length; i++) {
+                const z = row[i];
+                if (z < fzMin) fzMin = z;
+                if (z > fzMax) fzMax = z;
+              }
+            }
+            state.zMin = fzMin;
+            state.zMax = fzMax;
+          }
+
+          // Generar isolíneas
+          updateProgress(true, 85, 'Generando curvas de nivel...');
+          const equidistance = parseFloat(document.getElementById('selEquidistance').value) || 0.50;
+          const majorInterval = parseFloat(document.getElementById('selMajorInterval').value) || 2.50;
+          const smoothingIter = parseInt(document.getElementById('selSmoothing').value) || 2;
+          const doClip = document.getElementById('chkClipPolygon').checked;
+
+          const startCota = Math.ceil(state.zMin / equidistance) * equidistance;
+          const endCota = Math.floor(state.zMax / equidistance) * equidistance;
+
+          const generatedCurves = [];
+          for (let cota = startCota; cota <= endCota + 1e-5; cota += equidistance) {
+            const rawPolylines = marchingSquaresIsolines(state.fineGridX, state.fineGridY, state.fineGridZ, cota);
+
+            let polylinesToSmooth = rawPolylines;
+            if (doClip) {
+              polylinesToSmooth = [];
+              for (const poly of rawPolylines) {
+                polylinesToSmooth.push(...clipPolyline(poly, state.utmPoints));
+              }
+              // Ensamble de piezas contiguas de la misma cota tras el recorte
+              polylinesToSmooth = joinNearbyPolylines(polylinesToSmooth, 0.80);
+            }
+
+            for (const poly of polylinesToSmooth) {
+              if (!poly || poly.length < 2) continue;
+              const isClosed = Math.hypot(poly[0].x - poly[poly.length - 1].x, poly[0].y - poly[poly.length - 1].y) < 0.35;
+              const minLen = isClosed ? 1.00 : 1.80;
+              if (polylineLength(poly) < minLen) continue;
+
+              const smoothed = smoothContourOrganic(poly, smoothingIter);
+              if (!smoothed || smoothed.length < 2) continue;
+
+              const isClosedCurve = Math.hypot(smoothed[0].x - smoothed[smoothed.length - 1].x, smoothed[0].y - smoothed[smoothed.length - 1].y) < 0.35;
+              generatedCurves.push({
+                elevation: +cota.toFixed(2),
+                isMajor: Math.abs(cota % majorInterval) < 0.01,
+                isClosed: isClosedCurve,
+                points: smoothed
+              });
+            }
+          }
+
+          state.curves = generatedCurves;
+
+          // Calcular etiquetas no solapadas con separación controlada
+          state.labels = computeContourLabels(state.curves, {
+            minCurveLength: 28.0,
+            minLabelSpacing: 45.0,
+            minSameCotaSpacing: 65.0
+          });
+
+          // Actualizar métricas
+          updateProgress(true, 100, '¡Completado con éxito!');
+          setTimeout(() => updateProgress(false), 800);
+
+          renderMetrics(equidistance, majorInterval);
+          emptyState.style.display = 'none';
+          legendBox.style.display = 'flex';
+          resultsSection.style.display = 'block';
+
+          fitView();
+          renderCanvas();
+
+        } catch (err) {
+          alert('Error generando curvas: ' + err.message);
+          updateProgress(false);
+        } finally {
+          btnGenerate.disabled = false;
+        }
+      };
+
+      // --- CÁLCULO DE MÉTRICAS ---
+      function renderMetrics(equidistance, majorInterval) {
+        // Área (Shoelace formula)
+        let area = 0;
+        const pts = state.utmPoints;
+        for (let i = 0; i < pts.length - 1; i++) {
+          area += pts[i].x * pts[i + 1].y - pts[i + 1].x * pts[i].y;
+        }
+        area = Math.abs(area) / 2;
+        const ha = area / 10000;
+
+        // Perímetro
+        let perim = 0;
+        for (let i = 0; i < pts.length - 1; i++) {
+          perim += Math.hypot(pts[i + 1].x - pts[i].x, pts[i + 1].y - pts[i].y);
+        }
+
+        const deltaZ = state.zMax - state.zMin;
+        const majorCount = state.curves.filter(c => c.isMajor).length;
+        const minorCount = state.curves.length - majorCount;
+
+        document.getElementById('statArea').textContent = `${area.toLocaleString('es-MX', { maximumFractionDigits: 0 })} m² (${ha.toFixed(2)} ha)`;
+        document.getElementById('statPerimeter').textContent = `${perim.toFixed(1)} m`;
+        document.getElementById('statZRange').textContent = `${state.zMin.toFixed(1)} – ${state.zMax.toFixed(1)} m`;
+        document.getElementById('statDeltaZ').textContent = `${deltaZ.toFixed(2)} m`;
+        document.getElementById('statTotalCurves').textContent = `${state.curves.length}`;
+        document.getElementById('statBreakdown').textContent = `${majorCount} M / ${minorCount} O`;
+      }
+
+      // --- AJUSTAR VISTA (FIT TO EXTENTS) ---
+      function fitView() {
+        if (!state.utmPoints.length) return;
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        state.utmPoints.forEach(p => {
+          if (p.x < minX) minX = p.x;
+          if (p.x > maxX) maxX = p.x;
+          if (p.y < minY) minY = p.y;
+          if (p.y > maxY) maxY = p.y;
+        });
+
+        const pad = 60;
+        const cW = canvas.width / window.devicePixelRatio;
+        const cH = canvas.height / window.devicePixelRatio;
+        const w = maxX - minX || 100;
+        const h = maxY - minY || 100;
+
+        const scaleX = (cW - pad * 2) / w;
+        const scaleY = (cH - pad * 2) / h;
+        state.view.zoom = Math.min(scaleX, scaleY);
+        state.view.panX = (cW - w * state.view.zoom) / 2 - minX * state.view.zoom;
+        state.view.panY = (cH - h * state.view.zoom) / 2 + maxY * state.view.zoom; // Invertir Y para coordenadas de pantalla
+      }
+
+      function worldToScreen(x, y) {
+        return {
+          sx: x * state.view.zoom + state.view.panX,
+          sy: -y * state.view.zoom + state.view.panY
+        };
+      }
+
+      function screenToWorld(sx, sy) {
+        return {
+          wx: (sx - state.view.panX) / state.view.zoom,
+          wy: -(sy - state.view.panY) / state.view.zoom
+        };
+      }
+
+      // --- RENDERIZADO EN CANVAS ---
+      function renderCanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        ctx.save();
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const width = canvas.width / dpr;
+        const height = canvas.height / dpr;
+
+        // Fondo oscuro
+        ctx.fillStyle = '#090e17';
+        ctx.fillRect(0, 0, width, height);
+
+        // Grid tenue
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 1;
+        const gridStep = 50 * state.view.zoom;
+        if (gridStep > 20 && gridStep < 300) {
+          ctx.beginPath();
+          const startX = state.view.panX % gridStep;
+          for (let x = startX; x < width; x += gridStep) {
+            ctx.moveTo(x, 0); ctx.lineTo(x, height);
+          }
+          const startY = state.view.panY % gridStep;
+          for (let y = startY; y < height; y += gridStep) {
+            ctx.moveTo(0, y); ctx.lineTo(width, y);
+          }
+          ctx.stroke();
+        }
+
+        // 1. Dibujar Curvas de Nivel
+        if (state.curves.length > 0) {
+          const deltaZ = (state.zMax - state.zMin) || 1;
+
+          // Estado gráfico limpio sin herencia entre curvas
+          ctx.setLineDash([]);
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+
+          state.curves.forEach(c => {
+            if (c.points.length < 2) return;
+            const isHovered = (state.hoveredCurve === c);
+
+            // Gradiente hipsométrico (azul -> verde -> amarillo -> naranja)
+            const t = Math.max(0, Math.min(1, (c.elevation - state.zMin) / deltaZ));
+            let color;
+            if (isHovered) {
+              color = '#38bdf8';
+            } else if (c.isMajor) {
+              color = '#ef4444'; // Rojo curvas maestras
+            } else {
+              // Color gradiente para ordinarias
+              const r = Math.round(100 + t * 140);
+              const g = Math.round(140 + (1 - Math.abs(t - 0.5) * 2) * 80);
+              const b = Math.round(200 * (1 - t) + 80);
+              color = `rgb(${r},${g},${b})`;
+            }
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = isHovered ? 3.5 : (c.isMajor ? 2.2 : 1.1);
+
+            ctx.beginPath();
+            const p0 = worldToScreen(c.points[0].x, c.points[0].y);
+            ctx.moveTo(p0.sx, p0.sy);
+            for (let i = 1; i < c.points.length; i++) {
+              const pi = worldToScreen(c.points[i].x, c.points[i].y);
+              ctx.lineTo(pi.sx, pi.sy);
+            }
+            if (c.isClosed || Math.hypot(c.points[0].x - c.points[c.points.length - 1].x, c.points[0].y - c.points[c.points.length - 1].y) < 0.35) {
+              ctx.closePath();
+            }
+            ctx.stroke();
+
+          });
+
+          // Dibujar etiquetas limpias no solapadas con halo protector (sin recortar la curva visualmente)
+          if (state.labels && state.labels.length > 0) {
+            state.labels.forEach(lbl => {
+              const sp = worldToScreen(lbl.x, lbl.y);
+              ctx.save();
+              ctx.translate(sp.sx, sp.sy);
+              ctx.rotate(lbl.angleDeg * Math.PI / 180);
+
+              ctx.font = 'bold 10px monospace';
+              const text = lbl.elevation.toFixed(2) + ' m';
+
+              // Halo perimetral nítido sobre el trazo para legibilidad sin bloquear la continuidad de la curva
+              ctx.lineCap = 'round';
+              ctx.lineJoin = 'round';
+              ctx.strokeStyle = '#090e17';
+              ctx.lineWidth = 3.5;
+              ctx.strokeText(text, 0, 0);
+
+              ctx.fillStyle = '#f8fafc';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(text, 0, 0);
+              ctx.restore();
+            });
+          }
+        }
+
+        // 2. Dibujar Polígono KMZ
+        if (state.utmPoints.length >= 3) {
+          ctx.strokeStyle = '#06b6d4';
+          ctx.lineWidth = 2.5;
+          ctx.fillStyle = 'rgba(6, 182, 212, 0.05)';
+
+          ctx.beginPath();
+          const p0 = worldToScreen(state.utmPoints[0].x, state.utmPoints[0].y);
+          ctx.moveTo(p0.sx, p0.sy);
+          for (let i = 1; i < state.utmPoints.length; i++) {
+            const pi = worldToScreen(state.utmPoints[i].x, state.utmPoints[i].y);
+            ctx.lineTo(pi.sx, pi.sy);
+          }
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          // Vértices
+          ctx.fillStyle = '#38bdf8';
+          state.utmPoints.forEach(p => {
+            const sp = worldToScreen(p.x, p.y);
+            ctx.beginPath();
+            ctx.arc(sp.sx, sp.sy, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+          });
+        }
+
+        ctx.restore();
+      }
+
+      // --- INTERACCIÓN RATÓN (PAN, ZOOM, HOVER) ---
+      canvas.onmousedown = (e) => {
+        state.view.isDragging = true;
+        state.view.startX = e.clientX - state.view.panX;
+        state.view.startY = e.clientY - state.view.panY;
+      };
+
+      window.onmouseup = () => {
+        state.view.isDragging = false;
+      };
+
+      canvas.onmousemove = (e) => {
+        if (state.view.isDragging) {
+          state.view.panX = e.clientX - state.view.startX;
+          state.view.panY = e.clientY - state.view.startY;
+          renderCanvas();
+          return;
+        }
+
+        // Inspección de coordenadas
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const wCoord = screenToWorld(mouseX, mouseY);
+
+        const geo = utmToLatLon(wCoord.wx, wCoord.wy, state.utmZone, state.utmHemisphere);
+        lblCoords.innerHTML = `X: ${wCoord.wx.toFixed(1)}m, Y: ${wCoord.wy.toFixed(1)}m (${geo.lat.toFixed(6)}°, ${geo.lon.toFixed(6)}°)`;
+
+        // Detección de curva cercana para tooltip
+        let closest = null;
+        let minDist = 12 / state.view.zoom; // 12px de tolerancia
+
+        if (state.curves.length > 0) {
+          state.curves.forEach(c => {
+            for (let i = 0; i < c.points.length; i++) {
+              const d = Math.hypot(c.points[i].x - wCoord.wx, c.points[i].y - wCoord.wy);
+              if (d < minDist) {
+                minDist = d;
+                closest = c;
+              }
+            }
+          });
+        }
+
+        if (closest !== state.hoveredCurve) {
+          state.hoveredCurve = closest;
+          renderCanvas();
+        }
+
+        if (closest) {
+          lblElevationInfo.innerHTML = `<strong>Cota Z = ${closest.elevation.toFixed(2)} m</strong> (${closest.isMajor ? 'Curva Maestra' : 'Curva Ordinaria'})`;
+        } else {
+          lblElevationInfo.textContent = 'Cota: --';
+        }
+      };
+
+      canvas.onwheel = (e) => {
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        const factor = e.deltaY < 0 ? 1.15 : 0.87;
+        const newZoom = Math.max(0.005, Math.min(50, state.view.zoom * factor));
+
+        state.view.panX = mouseX - (mouseX - state.view.panX) * (newZoom / state.view.zoom);
+        state.view.panY = mouseY - (mouseY - state.view.panY) * (newZoom / state.view.zoom);
+        state.view.zoom = newZoom;
+        renderCanvas();
+      };
+
+      document.getElementById('btnZoomIn').onclick = () => {
+        state.view.zoom *= 1.25; renderCanvas();
+      };
+      document.getElementById('btnZoomOut').onclick = () => {
+        state.view.zoom *= 0.8; renderCanvas();
+      };
+      document.getElementById('btnFit').onclick = () => {
+        fitView(); renderCanvas();
+      };
+
+      // --- EXPORTAR DXF 3D ESTÁNDAR (COMPATIBLE AUTOCAD R12/2000-2026/CIVIL 3D) ---
+      btnDownloadDXF.onclick = () => {
+        if (!state.curves.length) return;
+        const includeLabels = document.getElementById('chkDxfLabels').checked;
+
+        // Estructura R12 (AC1009): Máxima compatibilidad, sin diccionarios ni handles requeridos
+        const lines = [
+          '0', 'SECTION',
+          '2', 'HEADER',
+          '9', '$ACADVER', '1', 'AC1009',
+          '0', 'ENDSEC',
+          '0', 'SECTION',
+          '2', 'TABLES',
+          '0', 'TABLE', '2', 'LTYPE', '70', '1',
+          '0', 'LTYPE', '2', 'CONTINUOUS', '70', '0', '3', 'Solid line', '72', '65', '73', '0', '40', '0.0',
+          '0', 'ENDTAB',
+          '0', 'TABLE', '2', 'LAYER', '70', '4',
+          '0', 'LAYER', '2', 'POLIGONO_KMZ', '70', '0', '62', '4', '6', 'CONTINUOUS',
+          '0', 'LAYER', '2', 'CURVAS_MAESTRAS', '70', '0', '62', '1', '6', 'CONTINUOUS',
+          '0', 'LAYER', '2', 'CURVAS_ORDINARIAS', '70', '0', '62', '8', '6', 'CONTINUOUS',
+          '0', 'LAYER', '2', 'TEXTOS_COTAS', '70', '0', '62', '2', '6', 'CONTINUOUS',
+          '0', 'ENDTAB',
+          '0', 'ENDSEC',
+          '0', 'SECTION',
+          '2', 'ENTITIES'
+        ];
+
+        // 1. Polígono KMZ
+        const kmzPts = state.utmPoints;
+        if (kmzPts && kmzPts.length >= 3) {
+          lines.push('0', 'POLYLINE', '8', 'POLIGONO_KMZ', '66', '1', '10', '0.0', '20', '0.0', '30', '0.0', '70', '9');
+          kmzPts.forEach(pt => {
+            lines.push('0', 'VERTEX', '8', 'POLIGONO_KMZ', '10', pt.x.toFixed(3), '20', pt.y.toFixed(3), '30', (pt.z || 0).toFixed(3), '70', '32');
+          });
+          lines.push('0', 'SEQEND', '8', 'POLIGONO_KMZ');
+        }
+
+        // 2. Curvas de Nivel 3D (con diezmado colineal Douglas-Peucker de 4 cm)
+        state.curves.forEach(c => {
+          if (!c.points || c.points.length < 2) return;
+          const layer = c.isMajor ? 'CURVAS_MAESTRAS' : 'CURVAS_ORDINARIAS';
+          const isClosed = c.isClosed || Math.hypot(c.points[0].x - c.points[c.points.length - 1].x, c.points[0].y - c.points[c.points.length - 1].y) < 0.35;
+
+          // Diezmado fino de 0.04m para eliminar vértices redundantes colineales sin perder curvatura
+          const pts = simplifyPolyline(c.points, 0.04);
+          if (pts.length < 2) return;
+
+          lines.push('0', 'POLYLINE', '8', layer, '66', '1', '10', '0.0', '20', '0.0', '30', '0.0', '70', isClosed ? '9' : '8');
+          pts.forEach(pt => {
+            lines.push('0', 'VERTEX', '8', layer, '10', pt.x.toFixed(3), '20', pt.y.toFixed(3), '30', c.elevation.toFixed(3), '70', '32');
+          });
+          lines.push('0', 'SEQEND', '8', layer);
+        });
+
+        // 3. Textos de Cota en Curvas Maestras
+        if (includeLabels && state.labels && state.labels.length > 0) {
+          state.labels.forEach(lbl => {
+            lines.push(
+              '0', 'TEXT',
+              '8', 'TEXTOS_COTAS',
+              '10', lbl.x.toFixed(3),
+              '20', lbl.y.toFixed(3),
+              '30', lbl.z.toFixed(3),
+              '40', '1.5',
+              '1', lbl.elevation.toFixed(2),
+              '50', lbl.angleDeg.toFixed(1)
+            );
+          });
+        }
+
+        lines.push('0', 'ENDSEC', '0', 'EOF');
+        const dxfStr = lines.join('\r\n') + '\r\n';
+        downloadFile(dxfStr, (state.fileName || 'predio').replace(/\.[^/.]+$/, "") + '_curvas_0.50m.dxf', 'application/dxf');
+      };
+
+      // --- GENERADOR DE ARCHIVO ZIP / KMZ NATIVO (STORE, SIN COMPRESIÓN EXTERNA) ---
+      function createKmzZip(kmlText) {
+        const enc = new TextEncoder();
+        const kmlBytes = enc.encode(kmlText);
+        const fnBytes = enc.encode('doc.kml');
+
+        const table = new Uint32Array(256);
+        for (let i = 0; i < 256; i++) {
+          let c = i;
+          for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+          table[i] = c;
+        }
+        function crc32(buf) {
+          let crc = 0xFFFFFFFF;
+          for (let i = 0; i < buf.length; i++) crc = table[(crc ^ buf[i]) & 0xFF] ^ (crc >>> 8);
+          return (crc ^ 0xFFFFFFFF) >>> 0;
+        }
+
+        const crc = crc32(kmlBytes);
+        const size = kmlBytes.length;
+
+        // Local File Header (30 bytes + nombre)
+        const lfh = new Uint8Array(30 + fnBytes.length);
+        const lfhView = new DataView(lfh.buffer);
+        lfhView.setUint32(0, 0x04034b50, true);
+        lfhView.setUint16(4, 20, true);
+        lfhView.setUint16(6, 0, true);
+        lfhView.setUint16(8, 0, true); // Metodo 0: Store
+        lfhView.setUint16(10, 0, true);
+        lfhView.setUint16(12, 0, true);
+        lfhView.setUint32(14, crc, true);
+        lfhView.setUint32(18, size, true);
+        lfhView.setUint32(22, size, true);
+        lfhView.setUint16(26, fnBytes.length, true);
+        lfhView.setUint16(28, 0, true);
+        lfh.set(fnBytes, 30);
+
+        // Central Directory Header (46 bytes + nombre)
+        const cdh = new Uint8Array(46 + fnBytes.length);
+        const cdhView = new DataView(cdh.buffer);
+        cdhView.setUint32(0, 0x02014b50, true);
+        cdhView.setUint16(4, 20, true);
+        cdhView.setUint16(6, 20, true);
+        cdhView.setUint16(8, 0, true);
+        cdhView.setUint16(10, 0, true);
+        cdhView.setUint16(12, 0, true);
+        cdhView.setUint16(14, 0, true);
+        cdhView.setUint32(16, crc, true);
+        cdhView.setUint32(20, size, true);
+        cdhView.setUint32(24, size, true);
+        cdhView.setUint16(28, fnBytes.length, true);
+        cdhView.setUint16(30, 0, true);
+        cdhView.setUint16(32, 0, true);
+        cdhView.setUint16(34, 0, true);
+        cdhView.setUint16(36, 0, true);
+        cdhView.setUint32(38, 0, true);
+        cdhView.setUint32(42, 0, true); // Offset de LFH = 0
+        cdh.set(fnBytes, 46);
+
+        const cdhOffset = lfh.length + kmlBytes.length;
+
+        // End of Central Directory Record (22 bytes)
+        const eocd = new Uint8Array(22);
+        const eocdView = new DataView(eocd.buffer);
+        eocdView.setUint32(0, 0x06054b50, true);
+        eocdView.setUint16(4, 0, true);
+        eocdView.setUint16(6, 0, true);
+        eocdView.setUint16(8, 1, true); // 1 entrada
+        eocdView.setUint16(10, 1, true);
+        eocdView.setUint32(12, cdh.length, true);
+        eocdView.setUint32(16, cdhOffset, true);
+        eocdView.setUint16(20, 0, true);
+
+        const totalLen = lfh.length + kmlBytes.length + cdh.length + eocd.length;
+        const out = new Uint8Array(totalLen);
+        let pos = 0;
+        out.set(lfh, pos); pos += lfh.length;
+        out.set(kmlBytes, pos); pos += kmlBytes.length;
+        out.set(cdh, pos); pos += cdh.length;
+        out.set(eocd, pos);
+        return out;
+      }
+
+      // --- GENERAR DOCUMENTO KML 2.2 ESTÁNDAR ---
+      function generateKmlDocument(altMode = 'clampToGround', includePerimeter = true) {
+        if (!state.curves.length) return null;
+        const baseName = (state.fileName || 'predio').replace(/\.[^/.]+$/, "");
+
+        const kmlHeader = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Curvas de Nivel 0.50m - ${baseName}</name>
+    <open>1</open>
+    <description>Generado por LINE - Analizador Territorial estilo Global Mapper. Equidistancia: 0.50 m. Referencia vertical: ${altMode}.</description>
+    <Style id="majorStyle">
+      <LineStyle><color>ff2222ef</color><width>2.5</width></LineStyle>
+    </Style>
+    <Style id="minorStyle">
+      <LineStyle><color>ff999999</color><width>1.2</width></LineStyle>
+    </Style>
+    <Style id="boundaryStyle">
+      <LineStyle><color>ffffd000</color><width>3.0</width></LineStyle>
+      <PolyStyle><color>22ffd000</color><fill>1</fill><outline>1</outline></PolyStyle>
+    </Style>
+`;
+        let kmlBody = '';
+
+        // 1. Exportar Perímetro Original de Referencia (para validar coincidencia en Google Earth)
+        if (includePerimeter && state.utmPoints.length >= 3) {
+          const polyCoords = state.utmPoints.map(p => {
+            const geo = utmToLatLon(p.x, p.y, state.utmZone, state.utmHemisphere);
+            return `${geo.lon.toFixed(7)},${geo.lat.toFixed(7)},${(p.z || 0).toFixed(2)}`;
+          }).join(' ');
+
+          kmlBody += `    <Placemark>
+      <name>Perímetro Original del Predio</name>
+      <description>Polígono perimetral de referencia importado en el KMZ original.</description>
+      <styleUrl>#boundaryStyle</styleUrl>
+      <Polygon>
+        <tessellate>1</tessellate>
+        <altitudeMode>${altMode}</altitudeMode>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>${polyCoords}</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>\n`;
+        }
+
+        // 2. Exportar Curvas de Nivel con Cotas Z preservadas
+        kmlBody += `    <Folder>\n      <name>Curvas de Nivel (0.50m)</name>\n      <open>1</open>\n`;
+        state.curves.forEach((c) => {
+          const style = c.isMajor ? '#majorStyle' : '#minorStyle';
+          // Orden estricto KML: longitud,latitud,altitud con precisión de 7 decimales
+          const coordsStr = c.points.map(pt => {
+            const geo = utmToLatLon(pt.x, pt.y, state.utmZone, state.utmHemisphere);
+            return `${geo.lon.toFixed(7)},${geo.lat.toFixed(7)},${c.elevation.toFixed(2)}`;
+          }).join(' ');
+
+          kmlBody += `      <Placemark>
+        <name>Cota ${c.elevation.toFixed(2)} m</name>
+        <description>Elevación: ${c.elevation.toFixed(2)} m (${c.isMajor ? 'Curva Maestra' : 'Curva Ordinaria'})</description>
+        <styleUrl>${style}</styleUrl>
+        <LineString>
+          <tessellate>1</tessellate>
+          <altitudeMode>${altMode}</altitudeMode>
+          <coordinates>${coordsStr}</coordinates>
+        </LineString>
+      </Placemark>\n`;
+        });
+        kmlBody += `    </Folder>\n`;
+
+        const kmlFooter = `  </Document>\n</kml>`;
+        return kmlHeader + kmlBody + kmlFooter;
+      }
+
+      // --- EXPORTAR KMZ (GOOGLE EARTH) ---
+      if (btnDownloadKMZ) {
+        btnDownloadKMZ.onclick = () => {
+          if (!state.curves.length) return;
+          const altMode = document.getElementById('selKmlAltitudeMode')?.value || 'clampToGround';
+          const incPoly = document.getElementById('chkIncludePerimeterKML')?.checked ?? true;
+          const kmlContent = generateKmlDocument(altMode, incPoly);
+          if (!kmlContent) return;
+          const kmzBytes = createKmzZip(kmlContent);
+          const baseName = (state.fileName || 'predio').replace(/\.[^/.]+$/, "");
+          downloadFile(kmzBytes, `${baseName}_curvas_0.50m_${altMode}.kmz`, 'application/vnd.google-earth.kmz');
+        };
+      }
+
+      // --- EXPORTAR KML (GOOGLE EARTH) ---
+      btnDownloadKML.onclick = () => {
+        if (!state.curves.length) return;
+        const altMode = document.getElementById('selKmlAltitudeMode')?.value || 'clampToGround';
+        const incPoly = document.getElementById('chkIncludePerimeterKML')?.checked ?? true;
+        const kmlContent = generateKmlDocument(altMode, incPoly);
+        if (!kmlContent) return;
+        const baseName = (state.fileName || 'predio').replace(/\.[^/.]+$/, "");
+        downloadFile(kmlContent, `${baseName}_curvas_0.50m_${altMode}.kml`, 'application/vnd.google-earth.kml+xml');
+      };
+
+      // --- EXPORTAR GEOJSON ---
+      btnDownloadGeoJSON.onclick = () => {
+        if (!state.curves.length) return;
+        const features = state.curves.map(c => {
+          const coords = c.points.map(pt => {
+            const geo = utmToLatLon(pt.x, pt.y, state.utmZone, state.utmHemisphere);
+            return [geo.lon, geo.lat, c.elevation];
+          });
+          return {
+            type: "Feature",
+            properties: {
+              elevation: c.elevation,
+              isMajor: c.isMajor
+            },
+            geometry: {
+              type: "LineString",
+              coordinates: coords
+            }
+          };
+        });
+        const geojson = {
+          type: "FeatureCollection",
+          features
+        };
+        downloadFile(JSON.stringify(geojson, null, 2), 'curvas_nivel_0.50m.geojson', 'application/geo+json');
+      };
+
+      function downloadFile(content, fileName, mimeType) {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 300);
+      }
+
+    })();
+  </script>
+</body>
+</html>
