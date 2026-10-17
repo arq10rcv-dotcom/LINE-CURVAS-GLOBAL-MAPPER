@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Predio Demo Global Mapper - Topografia</name>
+    <description>Polígono de prueba para generación de curvas de nivel a equidistancia 0.50 m</description>
+    <Style id="polyStyle">
+      <LineStyle>
+        <color>ff00ffff</color>
+        <width>3</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4d00ffff</color>
+      </PolyStyle>
+    </Style>
+    <Placemark>
+      <name>Polígono Terreno Lomas (Demo)</name>
+      <styleUrl>#polyStyle</styleUrl>
+      <Polygon>
+        <extrude>0</extrude>
+        <altitudeMode>clampToGround</altitudeMode>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              -98.234000,19.051500,0
+              -98.230500,19.052000,0
+              -98.231000,19.054500,0
+              -98.234500,19.054000,0
+              -98.234000,19.051500,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>
