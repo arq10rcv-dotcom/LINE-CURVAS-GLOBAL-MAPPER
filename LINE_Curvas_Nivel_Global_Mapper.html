@@ -5,462 +5,389 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LINE · EXP-CURVAS-01 | Generador de Curvas de Nivel (Estilo Global Mapper)</title>
   <style>
+
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap');
+
     :root {
-      --bg-dark: #0f172a;
-      --bg-card: #1e293b;
-      --bg-hover: #334155;
-      --border-color: #334155;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --accent-cyan: #06b6d4;
-      --accent-emerald: #10b981;
-      --accent-amber: #f59e0b;
-      --accent-rose: #f43f5e;
-      --accent-blue: #3b82f6;
+      color-scheme: dark;
+      --bg-dark: #111313;
+      --bg-card: #1b1e1e;
+      --bg-hover: #2c3030;
+      --bg-sidebar: #171a1a;
+      --border-color: #363b3b;
+      --text-main: #eef0ed;
+      --text-muted: #a7adab;
+      --text-dim: #858b88;
+      --accent-cyan: #e2e5e1;
+      --accent-emerald: #e2e5e1;
+      --accent-amber: #c8ceca;
+      --accent-rose: #c7ccc8;
+      --accent-blue: #e2e5e1;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, monospace; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Rajdhani', 'Arial Narrow', 'Segoe UI', sans-serif;
+    }
+
+    html, body { min-height: 100%; }
 
     body {
-      background-color: var(--bg-dark);
+      background: var(--bg-dark);
       color: var(--text-main);
       display: flex;
       flex-direction: column;
       height: 100vh;
+      min-height: 0;
       overflow: hidden;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: .012em;
     }
 
-    /* TOP HEADER */
+    button, input, select { font: inherit; }
+    button:focus-visible, input:focus-visible, select:focus-visible,
+    .drop-zone:focus-visible { outline: 2px solid #e0e3df; outline-offset: 3px; }
+    ::selection { background: #797e7b; color: #fff; }
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: #181b1b; }
+    ::-webkit-scrollbar-thumb { background: #454a48; border-radius: 8px; }
+    ::-webkit-scrollbar-thumb:hover { background: #606663; }
+
+    /* LINE: technical drawing workbench / no chromatic accents */
     header {
-      background-color: var(--bg-card);
+      background: #1a1d1d;
       border-bottom: 1px solid var(--border-color);
-      padding: 10px 18px;
+      padding: 11px 20px;
+      min-height: 74px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 20px;
       flex-shrink: 0;
     }
-
-    .brand-title {
+    .brand-title { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .badge-exp {
       display: flex;
       align-items: center;
-      gap: 12px;
-    }
-
-    .badge-exp {
-      background: linear-gradient(135deg, #0284c7, #06b6d4);
-      color: white;
+      justify-content: center;
+      min-width: 105px;
+      min-height: 36px;
+      padding: 6px 10px;
+      border: 1px solid #747b77;
+      border-radius: 2px;
+      color: #f0f2ef;
+      background: #252929;
       font-weight: 700;
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 4px;
-      letter-spacing: 0.5px;
+      font-size: 12px;
+      line-height: 1;
+      letter-spacing: 1.25px;
+      white-space: nowrap;
     }
-
     .header-h1 {
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
+      color: #f3f4f1;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: .055em;
+      line-height: 1.12;
+      text-transform: uppercase;
     }
-
     .header-sub {
+      margin-top: 4px;
       color: var(--text-muted);
       font-size: 12px;
-      font-family: monospace;
+      font-weight: 500;
+      letter-spacing: .035em;
     }
-
-    .badges-strip {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
+    .badges-strip { display: flex; align-items: center; justify-content: flex-end; gap: 7px; flex-wrap: wrap; }
     .tag-badge {
-      background: #0f172a;
-      border: 1px solid var(--border-color);
-      color: var(--accent-cyan);
+      background: #222626;
+      border: 1px solid #424746;
+      border-radius: 2px;
+      color: #bcc2be;
       font-size: 11px;
-      font-family: monospace;
-      padding: 3px 8px;
-      border-radius: 4px;
+      font-weight: 600;
+      letter-spacing: .075em;
+      padding: 5px 8px;
+      white-space: nowrap;
     }
 
-    /* MAIN LAYOUT */
-    .app-body {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-    }
-
-    /* LEFT SIDEBAR (CONTROLS & DATA) */
+    .app-body { display: flex; flex: 1; min-height: 0; overflow: hidden; }
     .sidebar {
-      width: 440px;
-      background-color: #131d2e;
+      width: 427px;
+      max-width: 45vw;
+      background: var(--bg-sidebar);
       border-right: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
       overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-color: #454a48 #181b1b;
+      scrollbar-width: thin;
     }
-
-    .section-card {
-      padding: 16px;
-      border-bottom: 1px solid var(--border-color);
-    }
-
+    .section-card { padding: 17px 19px 19px; border-bottom: 1px solid var(--border-color); }
     .section-title {
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--accent-cyan);
-      margin-bottom: 10px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 9px;
+      margin-bottom: 13px;
+      color: #e4e7e3;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .075em;
+      text-transform: uppercase;
+      line-height: 1.3;
     }
+    .line-icon {
+      display: inline-block;
+      vertical-align: middle;
+      width: 17px;
+      height: 17px;
+      flex: 0 0 auto;
+      color: currentColor;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .section-title .line-icon { width: 19px; height: 19px; color: #c4cac5; }
 
-    /* TECHNICAL BANNER */
+    .alert-banner, .alert-info-banner {
+      padding: 11px 13px;
+      border-radius: 3px;
+      font-size: 12.8px;
+      line-height: 1.42;
+      letter-spacing: .005em;
+    }
     .alert-banner {
-      background: rgba(245, 158, 11, 0.1);
-      border: 1px solid rgba(245, 158, 11, 0.35);
-      border-radius: 6px;
-      padding: 10px 12px;
-      font-size: 11.5px;
-      line-height: 1.45;
-      color: #fde68a;
-      margin-bottom: 12px;
+      background: #222524;
+      border: 1px solid #4e5450;
+      border-left: 3px solid #b2b9b3;
+      color: #c8ceca;
+      margin-bottom: 10px;
     }
-
-    .alert-banner strong {
-      color: #fbbf24;
-    }
-
+    .alert-banner strong { color: #eff1ed; font-weight: 700; }
     .alert-info-banner {
-      background: rgba(6, 182, 212, 0.08);
-      border: 1px solid rgba(6, 182, 212, 0.25);
-      border-radius: 6px;
-      padding: 10px 12px;
-      font-size: 11.5px;
-      line-height: 1.45;
-      color: #bae6fd;
+      background: #1d2020;
+      border: 1px solid #393e3c;
+      border-left: 3px solid #707875;
+      color: #b4bbb7;
     }
+    .alert-info-banner strong { color: #e2e5e1; }
+    .alert-info-banner em { color: #c9cfca; }
 
-    /* DROP ZONE */
     .drop-zone {
-      border: 2px dashed #475569;
-      border-radius: 8px;
-      padding: 20px;
+      border: 1px dashed #666d69;
+      border-radius: 3px;
+      padding: 22px 16px 21px;
       text-align: center;
       cursor: pointer;
-      transition: all 0.2s ease;
-      background: rgba(30, 41, 59, 0.5);
+      transition: background .16s ease, border-color .16s ease;
+      background: #1c2020;
     }
+    .drop-zone:hover, .drop-zone.dragover { border-color: #e0e4df; background: #292d2c; }
+    .drop-zone-icon { line-height: 1; color: #d7dcd7; margin-bottom: 9px; }
+    .drop-zone-icon .line-icon { width: 28px; height: 28px; stroke-width: 1.45; }
+    .drop-zone-text { font-size: 15px; font-weight: 600; color: #e4e7e3; }
+    .drop-zone-sub { font-size: 12.8px; color: var(--text-muted); margin-top: 4px; }
 
-    .drop-zone:hover, .drop-zone.dragover {
-      border-color: var(--accent-cyan);
-      background: rgba(6, 182, 212, 0.08);
-    }
-
-    .drop-zone-icon {
-      font-size: 26px;
-      margin-bottom: 6px;
-      color: var(--accent-cyan);
-    }
-
-    .drop-zone-text {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-main);
-    }
-
-    .drop-zone-sub {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    /* BUTTONS */
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      padding: 8px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      border-radius: 6px;
+      gap: 8px;
+      min-height: 36px;
+      padding: 8px 12px;
+      font-size: 13.5px;
+      line-height: 1.2;
+      font-weight: 700;
+      letter-spacing: .035em;
+      border-radius: 3px;
       border: 1px solid transparent;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: background .16s ease, border-color .16s ease, color .16s ease, transform .16s ease;
       text-decoration: none;
     }
-
+    .btn:hover:not(:disabled) { transform: translateY(-1px); }
     .btn-primary {
-      background: linear-gradient(135deg, #0284c7, #06b6d4);
-      color: white;
-      box-shadow: 0 2px 6px rgba(6, 182, 212, 0.25);
+      background: #e6e9e4;
+      color: #171a19;
+      border-color: #f0f2ee;
     }
-
-    .btn-primary:hover:not(:disabled) {
-      filter: brightness(1.1);
-      box-shadow: 0 3px 10px rgba(6, 182, 212, 0.4);
-    }
-
+    .btn-primary:hover:not(:disabled) { background: white; border-color: white; }
     .btn-secondary {
-      background: var(--bg-card);
-      border-color: var(--border-color);
-      color: var(--text-main);
+      background: #242828;
+      border-color: #49504c;
+      color: #e1e5e0;
     }
-
-    .btn-secondary:hover:not(:disabled) {
-      background: var(--bg-hover);
-      border-color: #64748b;
-    }
-
+    .btn-secondary:hover:not(:disabled) { background: #353b38; border-color: #828a84; }
     .btn-emerald {
-      background: linear-gradient(135deg, #059669, #10b981);
-      color: white;
-      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
+      background: #ced4ce;
+      border-color: #e9ece7;
+      color: #161919;
     }
-
-    .btn-emerald:hover:not(:disabled) {
-      filter: brightness(1.1);
-      box-shadow: 0 3px 10px rgba(16, 185, 129, 0.4);
-    }
-
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
+    .btn-emerald:hover:not(:disabled) { background: #f3f5f1; }
+    .btn:disabled { opacity: .4; cursor: not-allowed; filter: grayscale(1); }
     .btn-full { width: 100%; }
+    .btn .line-icon { width: 16px; height: 16px; }
 
-    /* FORM CONTROLS */
-    .form-group {
-      margin-bottom: 12px;
-    }
-
+    .form-group { margin-bottom: 13px; }
     .form-group label {
       display: block;
-      font-size: 11.5px;
-      color: var(--text-muted);
-      margin-bottom: 5px;
-      font-weight: 500;
+      color: #b4bbb6;
+      font-size: 12.5px;
+      line-height: 1.25;
+      font-weight: 600;
+      letter-spacing: .01em;
+      margin-bottom: 6px;
     }
-
     .form-control {
       width: 100%;
-      background: #0f172a;
-      border: 1px solid var(--border-color);
-      border-radius: 5px;
-      color: var(--text-main);
+      min-height: 35px;
       padding: 7px 10px;
-      font-size: 12px;
+      background: #202323;
+      border: 1px solid #48504a;
+      border-radius: 3px;
+      color: #f0f2ee;
+      font-size: 13.5px;
+      font-weight: 600;
       outline: none;
+      cursor: pointer;
     }
-
-    .form-control:focus {
-      border-color: var(--accent-cyan);
-    }
-
+    .form-control:focus { border-color: #d7dcd5; box-shadow: 0 0 0 1px #d7dcd5; }
     .checkbox-row {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 12px;
+      gap: 9px;
+      font-size: 13.2px;
+      line-height: 1.25;
+      font-weight: 500;
       cursor: pointer;
       user-select: none;
-      margin-top: 8px;
+      margin-top: 11px;
+      color: #cdd1cd;
     }
+    .checkbox-row input { accent-color: #e8ebe6; width: 16px; height: 16px; flex: 0 0 auto; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 9px; }
+    .stat-box { background: #212424; border: 1px solid #404643; border-radius: 3px; padding: 9px 11px; }
+    .stat-label { font-size: 11.8px; color: #b5bcb7; text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+    .stat-val { font-size: 19px; font-weight: 700; color: #f1f2ef; letter-spacing: .025em; margin-top: 2px; font-variant-numeric: tabular-nums; }
+    .stat-val.cyan, .stat-val.emerald, .stat-val.amber { color: #f1f2ef; }
+    .progress-wrap { margin-top: 12px; display: none; }
+    .progress-bar { height: 5px; background: #373c3a; border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; background: #d9dfd9; transition: width .2s ease; }
+    .progress-text { font-size: 12px; color: var(--text-muted); margin-top: 5px; text-align: right; }
 
-    .checkbox-row input {
-      accent-color: var(--accent-cyan);
-      width: 15px;
-      height: 15px;
-    }
-
-    /* STATS GRID */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .stat-box {
-      background: #0f172a;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      padding: 9px 11px;
-    }
-
-    .stat-label {
-      font-size: 10.5px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .stat-val {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-main);
-      font-family: monospace;
-      margin-top: 2px;
-    }
-
-    .stat-val.cyan { color: var(--accent-cyan); }
-    .stat-val.emerald { color: var(--accent-emerald); }
-    .stat-val.amber { color: var(--accent-amber); }
-
-    /* PROGRESS BAR */
-    .progress-wrap {
-      margin-top: 10px;
-      display: none;
-    }
-
-    .progress-bar {
-      height: 6px;
-      background: #334155;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #06b6d4, #10b981);
-      transition: width 0.2s ease;
-    }
-
-    .progress-text {
-      font-size: 11px;
-      color: var(--text-muted);
-      font-family: monospace;
-      margin-top: 4px;
-      text-align: right;
-    }
-
-    /* RIGHT CANVAS AREA */
     .canvas-container {
       flex: 1;
       position: relative;
-      background: #090e17;
+      background: #111313;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      min-width: 0;
     }
-
-    canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      cursor: grab;
-    }
-
-    canvas:active {
-      cursor: grabbing;
-    }
-
-    /* OVERLAY FLOATING CONTROLS IN CANVAS */
+    canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: grab; }
+    canvas:active { cursor: grabbing; }
     .canvas-toolbar {
       position: absolute;
-      top: 14px;
-      right: 14px;
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(8px);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
+      top: 16px;
+      right: 16px;
+      background: rgba(30, 33, 32, .96);
+      border: 1px solid #4b524e;
+      border-radius: 3px;
       padding: 5px;
       display: flex;
-      gap: 5px;
+      gap: 4px;
       z-index: 10;
     }
-
     .btn-icon {
       background: transparent;
       border: 1px solid transparent;
-      color: var(--text-main);
-      width: 30px;
-      height: 30px;
-      border-radius: 4px;
+      color: #e0e4de;
+      width: 33px;
+      height: 33px;
+      border-radius: 2px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
       cursor: pointer;
     }
-
-    .btn-icon:hover {
-      background: var(--bg-hover);
-      border-color: #64748b;
+    .btn-icon:hover { background: #3c423e; border-color: #5e665f; }
+    .btn-icon .line-icon { width: 18px; height: 18px; }
+    .coords-overlay, .legend-box {
+      position: absolute;
+      background: rgba(29, 32, 31, .95);
+      border: 1px solid #4b514d;
+      border-radius: 3px;
+      color: #c7cdc8;
+      z-index: 10;
     }
-
     .coords-overlay {
-      position: absolute;
-      bottom: 14px;
-      left: 14px;
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(8px);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-size: 11.5px;
-      font-family: monospace;
-      color: var(--text-muted);
+      bottom: 16px;
+      left: 16px;
+      padding: 7px 12px;
+      font-size: 12.5px;
+      font-weight: 600;
       pointer-events: none;
-      z-index: 10;
     }
-
-    .coords-overlay strong {
-      color: var(--accent-cyan);
-    }
-
+    .coords-overlay strong { color: #eef0eb; }
     .legend-box {
-      position: absolute;
-      bottom: 14px;
-      right: 14px;
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(8px);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      padding: 8px 12px;
-      font-size: 11px;
-      z-index: 10;
+      bottom: 16px;
+      right: 16px;
+      padding: 10px 12px;
+      font-size: 12.5px;
+      line-height: 1.25;
+      font-weight: 600;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 7px;
     }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .legend-line {
-      width: 20px;
-      height: 3px;
-      border-radius: 1px;
-    }
-
-    /* EMPTY STATE */
+    .legend-item { display: flex; align-items: center; gap: 9px; }
+    .legend-line { width: 20px; height: 3px; border-radius: 1px; }
     .empty-state {
       position: absolute;
       text-align: center;
       max-width: 360px;
-      color: var(--text-muted);
+      padding: 20px;
+      color: #aeb5ae;
       pointer-events: none;
     }
+    .empty-icon { margin-bottom: 10px; color: #767e77; }
+    .empty-icon .line-icon { width: 49px; height: 49px; stroke-width: 1.2; }
+    .empty-state > div:nth-child(2) { color: #e3e7e0 !important; font-size: 18px !important; }
+    .empty-state > div:nth-child(3) { font-size: 13px !important; }
+    #fileLoadedInfo { color: #e7eae5 !important; }
 
-    .empty-icon {
-      font-size: 42px;
-      color: #334155;
-      margin-bottom: 8px;
+    @media (max-width: 1320px) {
+      header { padding: 9px 16px; }
+      .badges-strip { max-width: 400px; }
+      .tag-badge { font-size: 10px; }
+      .sidebar { width: 405px; }
+    }
+    @media (max-width: 920px) {
+      header { align-items: flex-start; flex-direction: column; gap: 10px; }
+      .badges-strip { justify-content: flex-start; max-width: none; }
+      .sidebar { width: 380px; max-width: 52vw; }
+      .section-card { padding: 14px; }
+    }
+    @media (max-width: 640px) {
+      header { gap: 8px; min-height: auto; }
+      .header-h1 { font-size: 15px; }
+      .header-sub { font-size: 11px; }
+      .badge-exp { min-width: 75px; font-size: 10px; padding: 6px; }
+      .badges-strip { gap: 5px; }
+      .tag-badge { font-size: 10px; padding: 3px 5px; }
+      .sidebar { width: 49%; max-width: 49%; }
+      .section-title { font-size: 12px; }
+      .canvas-toolbar { right: 8px; top: 8px; }
+      .coords-overlay { left: 8px; bottom: 8px; font-size: 11px; }
+      .legend-box { right: 8px; bottom: 8px; }
     }
   </style>
 </head>
@@ -491,7 +418,7 @@
       <!-- ESTADO DE FUENTES RASTER -->
       <div class="section-card">
         <div class="section-title">
-          <span>📡</span> Estado de Fuentes Altimétricas
+          <span class="section-icon"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 8.5a15.5 15.5 0 0 1 20 0"/><path d="M5 12a11 11 0 0 1 14 0"/><path d="M8.5 15.5a6 6 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/></svg></span> Estado de Fuentes Altimétricas
         </div>
         <div class="alert-banner">
           <strong>ASTER GDEM v3 (NASA/METI):</strong> Requiere autenticación con token Bearer de NASA Earthdata Cloud (LP DAAC). Acceso no autenticado restringido por la API de NASA.
@@ -506,11 +433,11 @@
       <!-- CARGA DE ARCHIVO -->
       <div class="section-card">
         <div class="section-title">
-          <span>📁</span> 1. Polígono de Entrada (KMZ / KML)
+          <span class="section-icon"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span> 1. Polígono de Entrada (KMZ / KML)
         </div>
 
         <div class="drop-zone" id="dropZone">
-          <div class="drop-zone-icon">📥</div>
+          <div class="drop-zone-icon"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 16V3"/><path d="m7 8 5-5 5 5"/><path d="M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg></div>
           <div class="drop-zone-text">Arrastra aquí un archivo .KMZ o .KML</div>
           <div class="drop-zone-sub">o haz clic para explorar en el equipo</div>
           <input type="file" id="fileInput" accept=".kmz,.kml" style="display:none;">
@@ -518,7 +445,7 @@
 
         <div style="display: flex; gap: 8px; margin-top: 10px;">
           <button class="btn btn-secondary btn-full" id="btnLoadDemo" type="button">
-            📍 Cargar Predio de Prueba (Lomas)
+            <svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg> Cargar Predio de Prueba (Lomas)
           </button>
         </div>
 
@@ -530,7 +457,7 @@
       <!-- PARÁMETROS DE GENERACIÓN -->
       <div class="section-card">
         <div class="section-title">
-          <span>⚙️</span> 2. Parámetros de Topografía
+          <span class="section-icon"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M4 17h16M9 4v6M16 14v6"/><circle cx="9" cy="7" r="2"/><circle cx="16" cy="17" r="2"/></svg></span> 2. Parámetros de Topografía
         </div>
 
         <div class="form-group">
@@ -587,7 +514,7 @@
 
         <div style="margin-top: 14px;">
           <button class="btn btn-primary btn-full" id="btnGenerate" type="button" disabled>
-            🚀 Generar Curvas de Nivel (0.50 m)
+            <svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m12 3 9 5-9 5-9-5zM3 12l9 5 9-5M3 16l9 5 9-5"/></svg> Generar Curvas de Nivel (0.50 m)
           </button>
         </div>
 
@@ -602,7 +529,7 @@
       <!-- MÉTRICAS Y RESULTADOS -->
       <div class="section-card" id="resultsSection" style="display:none;">
         <div class="section-title">
-          <span>📊</span> 3. Resultados y Métricas del Terreno
+          <span class="section-icon"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20V4M4 20h16M8 16v-5M13 16V7M18 16V9"/></svg></span> 3. Resultados y Métricas del Terreno
         </div>
 
         <div class="stats-grid">
@@ -635,17 +562,17 @@
         <!-- ACCIONES DE DESCARGA -->
         <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
           <button class="btn btn-emerald btn-full" id="btnDownloadDXF" type="button">
-            📐 Descargar DXF 3D (AutoCAD / Civil 3D)
+            <svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="6" width="16" height="12" rx="1"/><path d="M8 6v4M12 6v3M16 6v4"/></svg> Descargar DXF 3D (AutoCAD / Civil 3D)
           </button>
           <div style="display: flex; gap: 8px;">
             <button class="btn btn-secondary btn-full" id="btnDownloadKMZ" type="button" title="Archivo comprimido KMZ con polígono y curvas para Google Earth Pro">
-              🌍 KMZ (Google Earth)
+              <svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18M12 3c-5 5-5 13 0 18"/></svg> KMZ (Google Earth)
             </button>
             <button class="btn btn-secondary btn-full" id="btnDownloadKML" type="button" title="Archivo KML estándar para Google Earth / GIS">
-              📄 KML
+              <svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg> KML
             </button>
             <button class="btn btn-secondary btn-full" id="btnDownloadGeoJSON" type="button" title="Formato estándar GeoJSON">
-              🗺️ GeoJSON
+              <svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15M15 6v15"/></svg> GeoJSON
             </button>
           </div>
         </div>
@@ -658,16 +585,16 @@
       <canvas id="topoCanvas"></canvas>
 
       <div class="empty-state" id="emptyState">
-        <div class="empty-icon">🏔️</div>
+        <div class="empty-icon"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m2 20 7-11 4 5 3-4 6 10z"/><path d="M9 9 11 12 13 14M16 10 18 13"/></svg></div>
         <div style="font-size: 14px; font-weight: 600; color: #cbd5e1; margin-bottom: 4px;">Sin curvas generadas</div>
         <div style="font-size: 12px;">Carga un archivo KMZ o pulsa "Cargar Predio de Prueba" para visualizar las curvas de nivel.</div>
       </div>
 
       <!-- FLOATING TOOLBAR -->
       <div class="canvas-toolbar">
-        <button class="btn-icon" id="btnZoomIn" title="Acercar (+)">＋</button>
-        <button class="btn-icon" id="btnZoomOut" title="Alejar (-)">－</button>
-        <button class="btn-icon" id="btnFit" title="Ajustar vista">⛶</button>
+        <button class="btn-icon" id="btnZoomIn" title="Acercar (+)" aria-label="Acercar"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v16M4 12h16"/></svg></button>
+        <button class="btn-icon" id="btnZoomOut" title="Alejar (-)" aria-label="Alejar"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12h16"/></svg></button>
+        <button class="btn-icon" id="btnFit" title="Ajustar vista" aria-label="Ajustar vista"><svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 3H3v6M15 3h6v6M3 15v6h6M21 15v6h-6"/></svg></button>
       </div>
 
       <!-- COORDS OVERLAY -->
@@ -678,15 +605,15 @@
       <!-- LEGEND -->
       <div class="legend-box" id="legendBox" style="display:none;">
         <div class="legend-item">
-          <div class="legend-line" style="background:#06b6d4; height: 3px;"></div>
+          <div class="legend-line" style="background:#c6cdc5; height: 3px;"></div>
           <span>Polígono KMZ</span>
         </div>
         <div class="legend-item">
-          <div class="legend-line" style="background:#ef4444; height: 2.5px;"></div>
+          <div class="legend-line" style="background:#f0f2ef; height: 2.5px;"></div>
           <span>Curvas Maestras (2.50m)</span>
         </div>
         <div class="legend-item">
-          <div class="legend-line" style="background:#94a3b8; height: 1.2px;"></div>
+          <div class="legend-line" style="background:#989f99; height: 1.2px;"></div>
           <span>Curvas Ordinarias (0.50m)</span>
         </div>
       </div>
@@ -1847,11 +1774,11 @@
         const height = canvas.height / dpr;
 
         // Fondo oscuro
-        ctx.fillStyle = '#090e17';
+        ctx.fillStyle = '#111313';
         ctx.fillRect(0, 0, width, height);
 
         // Grid tenue
-        ctx.strokeStyle = '#1e293b';
+        ctx.strokeStyle = '#272b29';
         ctx.lineWidth = 1;
         const gridStep = 50 * state.view.zoom;
         if (gridStep > 20 && gridStep < 300) {
@@ -1880,19 +1807,17 @@
             if (c.points.length < 2) return;
             const isHovered = (state.hoveredCurve === c);
 
-            // Gradiente hipsométrico (azul -> verde -> amarillo -> naranja)
+            // Intensidad monocromática de las curvas ordinarias en función de la cota
             const t = Math.max(0, Math.min(1, (c.elevation - state.zMin) / deltaZ));
             let color;
             if (isHovered) {
-              color = '#38bdf8';
+              color = '#ecefeb';
             } else if (c.isMajor) {
-              color = '#ef4444'; // Rojo curvas maestras
+              color = '#eef0ed'; // Curvas maestras resaltadas sin color
             } else {
-              // Color gradiente para ordinarias
-              const r = Math.round(100 + t * 140);
-              const g = Math.round(140 + (1 - Math.abs(t - 0.5) * 2) * 80);
-              const b = Math.round(200 * (1 - t) + 80);
-              color = `rgb(${r},${g},${b})`;
+              // Variación de luminancia, sin cambiar la elevación ni el tipo de curva
+              const gray = Math.round(120 + t * 62);
+              color = `rgb(${gray},${gray},${gray})`;
             }
 
             ctx.strokeStyle = color;
@@ -1926,11 +1851,11 @@
               // Halo perimetral nítido sobre el trazo para legibilidad sin bloquear la continuidad de la curva
               ctx.lineCap = 'round';
               ctx.lineJoin = 'round';
-              ctx.strokeStyle = '#090e17';
+              ctx.strokeStyle = '#111313';
               ctx.lineWidth = 3.5;
               ctx.strokeText(text, 0, 0);
 
-              ctx.fillStyle = '#f8fafc';
+              ctx.fillStyle = '#ecefeb';
               ctx.textAlign = 'center';
               ctx.textBaseline = 'middle';
               ctx.fillText(text, 0, 0);
@@ -1941,9 +1866,9 @@
 
         // 2. Dibujar Polígono KMZ
         if (state.utmPoints.length >= 3) {
-          ctx.strokeStyle = '#06b6d4';
+          ctx.strokeStyle = '#c6cdc5';
           ctx.lineWidth = 2.5;
-          ctx.fillStyle = 'rgba(6, 182, 212, 0.05)';
+          ctx.fillStyle = 'rgba(210, 214, 209, 0.045)';
 
           ctx.beginPath();
           const p0 = worldToScreen(state.utmPoints[0].x, state.utmPoints[0].y);
@@ -1957,7 +1882,7 @@
           ctx.stroke();
 
           // Vértices
-          ctx.fillStyle = '#38bdf8';
+          ctx.fillStyle = '#ecefeb';
           state.utmPoints.forEach(p => {
             const sp = worldToScreen(p.x, p.y);
             ctx.beginPath();
