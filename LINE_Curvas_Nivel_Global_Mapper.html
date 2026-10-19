@@ -405,7 +405,7 @@
     <div class="badges-strip">
       <span class="tag-badge">EQUIDISTANCIA: 0.50 M</span>
       <span class="tag-badge">RASTER: COPERNICUS DEM (GLO-90 OFICIAL)</span>
-      <span class="tag-badge">DATUM: WGS84 / EGM96</span>
+      <span class="tag-badge">DATUM: WGS84 / EGM2008</span>
     </div>
   </header>
 
@@ -424,9 +424,9 @@
           <strong>ASTER GDEM v3 (NASA/METI):</strong> Requiere autenticación con token Bearer de NASA Earthdata Cloud (LP DAAC). Acceso no autenticado restringido por la API de NASA.
         </div>
         <div class="alert-info-banner">
-          <strong>Fuente Activa Verificada:</strong> Copernicus DEM 2021 GLO-90 (resolución 90 m oficial de Open-Meteo). Datum vertical: EGM96. Cotas reales sin token.<br>
+          <strong>Fuente Activa Verificada:</strong> Copernicus DEM 2021 GLO-90 (resolución 90 m oficial de Open-Meteo). Modelo de referencia vertical: EGM2008 (Copernicus). Cotas del DEM sin token.<br>
           <em>Aviso de Atribución:</em> La API pública de Open-Meteo opera con el modelo global GLO-90 (90 m). No se atribuye falsamente resolución GLO-30.<br>
-          <em>Nota técnica:</em> La equidistancia de 0.50 m es el espaciado vertical de isolíneas interpoladas sobre el raster, análogo al método de triangulación/malla de Global Mapper.
+          <em>Nota técnica:</em> La equidistancia de 0.50 m es solo el intervalo de las curvas interpoladas: no equivale a precisión altimétrica ni a un DEM de 0.50 m. Las curvas pueden diferir del relieve de Google Earth.
         </div>
       </div>
 
@@ -500,11 +500,14 @@
         </label>
 
         <div class="form-group" style="margin-top: 10px;">
-          <label>Modo Altitud Google Earth (KML / KMZ)</label>
+          <label>Modo de altitud para KML (KMZ siempre sobre terreno)</label>
           <select id="selKmlAltitudeMode" class="form-control">
-            <option value="clampToGround" selected>clampToGround (Drapeado al terreno · Coincidencia exacta con satélite)</option>
-            <option value="absolute">absolute (Cotas 3D ortométricas EGM96 sobre el nivel del mar)</option>
+            <option value="clampToGround" selected>Sobre terreno de Google Earth (clampToGround)</option>
+            <option value="absolute">Cotas absolutas del modelo GLO-90 (EGM2008)</option>
           </select>
+          <div style="font-size: 11px; line-height: 1.5; color: var(--text-muted); margin-top: 6px;">
+            KMZ: siempre adherido a la superficie de Google Earth. Esto no corrige las diferencias horizontales entre el DEM de 90 m y el relieve visible.
+          </div>
         </div>
 
         <label class="checkbox-row">
@@ -565,8 +568,8 @@
             <svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="6" width="16" height="12" rx="1"/><path d="M8 6v4M12 6v3M16 6v4"/></svg> Descargar DXF 3D (AutoCAD / Civil 3D)
           </button>
           <div style="display: flex; gap: 8px;">
-            <button class="btn btn-secondary btn-full" id="btnDownloadKMZ" type="button" title="Archivo comprimido KMZ con polígono y curvas para Google Earth Pro">
-              <svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18M12 3c-5 5-5 13 0 18"/></svg> KMZ (Google Earth)
+            <button class="btn btn-secondary btn-full" id="btnDownloadKMZ" type="button" title="KMZ con curvas drapeadas al relieve de Google Earth; las cotas originales se conservan como atributos">
+              <svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18M12 3c-5 5-5 13 0 18"/></svg> KMZ · Sobre Terreno
             </button>
             <button class="btn btn-secondary btn-full" id="btnDownloadKML" type="button" title="Archivo KML estándar para Google Earth / GIS">
               <svg class="line-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg> KML
@@ -2143,7 +2146,7 @@
   <Document>
     <name>Curvas de Nivel 0.50m - ${baseName}</name>
     <open>1</open>
-    <description>Generado por LINE - Analizador Territorial estilo Global Mapper. Equidistancia: 0.50 m. Referencia vertical: ${altMode}.</description>
+    <description>Generado por LINE - Analizador Territorial estilo Global Mapper. Equidistancia: 0.50 m. Modo de visualización: ${altMode}. Fuente de datos: Copernicus DEM GLO-90 (Open-Meteo, ~90 m). Las curvas son interpoladas; no equivalen a un levantamiento topográfico ni coinciden necesariamente con el relieve de Google Earth.</description>
     <Style id="majorStyle">
       <LineStyle><color>ff2222ef</color><width>2.5</width></LineStyle>
     </Style>
@@ -2192,7 +2195,8 @@
 
           kmlBody += `      <Placemark>
         <name>Cota ${c.elevation.toFixed(2)} m</name>
-        <description>Elevación: ${c.elevation.toFixed(2)} m (${c.isMajor ? 'Curva Maestra' : 'Curva Ordinaria'})</description>
+        <description>Elevación del DEM Copernicus GLO-90: ${c.elevation.toFixed(2)} m (${c.isMajor ? 'Curva Maestra' : 'Curva Ordinaria'}). En clampToGround la geometría se visualiza sobre Google Earth y su elevación absoluta queda ignorada para el dibujo.</description>
+        <ExtendedData><Data name="cota_dem_m"><value>${c.elevation.toFixed(2)}</value></Data><Data name="dem_fuente"><value>Copernicus GLO-90 (Open-Meteo)</value></Data></ExtendedData>
         <styleUrl>${style}</styleUrl>
         <LineString>
           <tessellate>1</tessellate>
@@ -2211,13 +2215,16 @@
       if (btnDownloadKMZ) {
         btnDownloadKMZ.onclick = () => {
           if (!state.curves.length) return;
-          const altMode = document.getElementById('selKmlAltitudeMode')?.value || 'clampToGround';
+          // KMZ de presentación: siempre apoyado en la superficie visual de Google Earth.
+          // La altitud absoluta de la fuente DEM permanece en las coordenadas y en ExtendedData,
+          // pero clampToGround obliga al visor a utilizar su propio modelo de terreno.
+          const altMode = 'clampToGround';
           const incPoly = document.getElementById('chkIncludePerimeterKML')?.checked ?? true;
           const kmlContent = generateKmlDocument(altMode, incPoly);
           if (!kmlContent) return;
           const kmzBytes = createKmzZip(kmlContent);
           const baseName = (state.fileName || 'predio').replace(/\.[^/.]+$/, "");
-          downloadFile(kmzBytes, `${baseName}_curvas_0.50m_${altMode}.kmz`, 'application/vnd.google-earth.kmz');
+          downloadFile(kmzBytes, `${baseName}_curvas_0.50m_sobre_terreno.kmz`, 'application/vnd.google-earth.kmz');
         };
       }
 
